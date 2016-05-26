@@ -4,7 +4,6 @@ p2p market
 Hi everyone. I have been working on my new cryptocurrency for the last year now and I'm about ready to test it. I'm wondering if there are any volunteers out there that are willing to help. You can now download the program here. I will be giving away tokens to experienced users on this forum. Check it out and tell me what you think.
 
 mediafire.com/download/14y7fls1yd06lm2/Setup.exe
-Source: https://github.com/0ldMaid/Krypton
 
 This has been tested but there still could be bugs report them to me if you come across anything.
 
