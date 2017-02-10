@@ -59,47 +59,171 @@ import net.glxn.qrgen.image.ImageType;
 
 public class krypton_database_driver{
 
-    /* the default framework is embedded*/
-    static String framework = "embedded";
-    static String driver = "org.apache.derby.jdbc.EmbeddedDriver";
-    static String protocol = "jdbc:derby:";
+/* the default framework is embedded*/
+static String framework = "Embedded";
+static String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+//static String driver = "org.apache.derby.jdbc.ClientDriver";
+static String protocol = "jdbc:derby:";//jdbc:derby:
 
 
-    int ix0 = 0;
-    int ix1 = 0;
+int ix0 = 0;
+int ix1 = 0;
 
-    String cx0 = new String();
-    String cx1 = new String();
-    String cx2 = new String();
+String cx0 = new String();
+String cx1 = new String();
+String cx2 = new String();
 
-    int worm_size = 10;
-    String base58 = new String("");
-    KeyPair keyPair;
-
-
-
-    static ArrayList<Statement> statements = new ArrayList<Statement>(); // list of Statements, 
-    static PreparedStatement psInsert = null;
-    static PreparedStatement psUpdate = null;
-
-    static Statement s = null;//load network
-    static Statement s2 = null;//load
-    static Statement se = null;//edit
-
-    static ResultSet rs = null;
-    static ResultSet rs2 = null; 
-    static ResultSet rse = null;//edit
+int worm_size = 10;
+String base58 = new String("");
+KeyPair keyPair;
 
 
 
-    static Connection conn = null;
+static ArrayList<Statement> statements = new ArrayList<Statement>(); // list of Statements, 
+static PreparedStatement psInsert = null;
+static PreparedStatement psUpdate = null;
+
+static Statement s = null;//load network
+static Statement s2 = null;//load
+static Statement se = null;//edit
+
+static ResultSet rs = null;
+static ResultSet rs2 = null; 
+static ResultSet rse = null;//edit
 
 
 
+static Connection conn = null;
 
 
-    krypton_database_driver(){//************************************************************************
+
+krypton_database_driver(){//************************************************************************
+        
     network.database_in_use = 1;
+
+    /* parse the arguments to determine which framework is desired*/
+        //parseArguments(args);
+
+    System.out.println("JDB saving starting in " + framework + " mode");
+
+    /* load the desired JDBC driver */
+    loadDriver();
+
+
+
+    try{
+
+        Properties props = new Properties(); // connection properties
+
+        // providing a user name and password is optional in the embedded
+        // and derbyclient frameworks
+
+        //props.put("user", "user1");
+        //props.put("password", "pass1");
+
+        /* By default, the schema APP will be used when no username is
+         * provided.
+         * Otherwise, the schema name is the same as the user name (in this
+         * case "user1" or USER1.)
+         *
+         * Note that user authentication is off by default, meaning that any
+         * user can connect to your database using any password. To enable
+         * authentication, see the Derby Developer's Guide.
+         */
+
+        String dbName = "KRYPTON"; // the name of the database
+
+        /*
+         * This connection specifies create=true in the connection URL to
+         * cause the database to be created when connecting for the first
+         * time. To remove the database, remove the directory derbyDB (the
+         * same as the database name) and its contents.
+         *
+         * The directory derbyDB will be created under the directory that
+         * the system property derby.system.home points to, or the current
+         * directory (user.dir) if derby.system.home is not set.
+         */
+
+
+        conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
+
+        System.out.println("Connected to and created database " + dbName);
+
+        // We want to control transactions manually. Autocommit is on by
+        // default in JDBC.
+        conn.setAutoCommit(false);
+
+        /* Creating a statement object that we can use for running various
+         * SQL statements commands against the database.*/
+        s = conn.createStatement();
+        statements.add(s);
+        s2 = conn.createStatement();
+        statements.add(s2);
+        se = conn.createStatement();
+        statements.add(se);
+
+
+
+
+        CallableStatement cs = krypton_database_driver.conn.prepareCall("CALL SYSCS_UTIL.SYSCS_COMPRESS_TABLE(?, ?, ?)");
+        cs.setString(1, "APP");
+        cs.setString(2, "LISTINGS_DB");
+        cs.setShort(3, (short) 1);
+        cs.execute();
+
+
+        //CallableStatement cs = krypton_database_driver.conn.prepareCall("CALL SYSCS_UTIL.SYSCS_COMPRESS_TABLE(?, ?, ?)");
+        cs.setString(1, "APP");
+        cs.setString(2, "UNCONFIRMED_DB");
+        cs.setShort(3, (short) 1);
+        cs.execute();
+
+
+        //CallableStatement cs = conn.prepareCall("CALL SYSCS_UTIL.SYSCS_COMPRESS_TABLE(?, ?, ?)");
+        cs.setString(1, "APP");
+        cs.setString(2, "MINING_DB");
+        cs.setShort(3, (short) 1);
+        cs.execute();
+
+
+        //CallableStatement cs = conn.prepareCall("CALL SYSCS_UTIL.SYSCS_COMPRESS_TABLE(?, ?, ?)");
+        cs.setString(1, "APP");
+        cs.setString(2, "BACKUP_DB");
+        cs.setShort(3, (short) 1);
+        cs.execute();
+
+
+        //CallableStatement cs = conn.prepareCall("CALL SYSCS_UTIL.SYSCS_COMPRESS_TABLE(?, ?, ?)");
+        cs.setString(1, "APP");
+        cs.setString(2, "SETTINGS");
+        cs.setShort(3, (short) 1);
+        cs.execute();
+
+
+
+
+
+        conn.commit();
+        System.out.println("Committed the transaction");
+
+        System.out.println("KRYPTON DATABASE BUILD");
+
+
+
+    }catch(Exception se){se.printStackTrace();}
+
+
+    network.database_in_use = 0;
+
+}//database
+
+
+
+
+
+    public void restart(){
+
+        network.database_in_use = 1;
 
         /* parse the arguments to determine which framework is desired*/
         //parseArguments(args);
@@ -214,16 +338,16 @@ public class krypton_database_driver{
 
         }catch(SQLException se){}
 
+        network.database_in_use = 0;
 
-    }//database
-
-
-
+    }//restart
 
 
 
 
     public void shutdown(){
+
+        network.database_in_use = 1;
 
         try{
 

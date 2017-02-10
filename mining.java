@@ -78,9 +78,11 @@ public static String bytesToHex(byte[] bytes) {
     char[] hexChars = new char[bytes.length * 2];
 
     for ( int j = 0; j < bytes.length; j++ ) {
+
         int v = bytes[j] & 0xFF;
         hexChars[j * 2] = hexArray[v >>> 4];
         hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+
     }//***************************************
 
     return new String(hexChars);
@@ -119,33 +121,39 @@ public void run(){//************************************************************
 		//System.out.println(">>>");
 
 
-				//someone already found this block or user abort
-				if(mining_stop == 1){System.out.println("Break mining stop 1"); break;}//network.status_x2.setIcon(network.imx0);
-				//someone already found this block
+			//someone already found this block or user abort
+			if(mining_stop == 1){System.out.println("Break mining stop 1"); break;}//network.status_x2.setIcon(network.imx0);
+			//someone already found this block
 
-				//testings for something to mine for
-				if(!mining2){System.out.println("Break mining stop 2 mining 2"); break;}//network.status_x2.setIcon(network.imx0);
-				//testings for something to mine for
+			//testings for something to mine for
+			if(!mining2){System.out.println("Break mining stop 2 mining 2"); break;}//network.status_x2.setIcon(network.imx0);
+			//testings for something to mine for
 
-				//testings for something to mine for
-				if(!mining3){System.out.println("Break mining stop 3 mining 3"); break;}//network.status_x2.setIcon(network.imx0);
-				//testings for something to mine for
+			//testings for something to mine for
+			if(!mining3){System.out.println("Break mining stop 3 mining 3"); break;}//network.status_x2.setIcon(network.imx0);
+			//testings for something to mine for
 
-				//testings for internet
-				if(network.peersx0 == 0 && network.new_database_start == 0){System.out.println("mining net_client 0"); break;}//network.status_x2.setIcon(network.imx0); 
-				//testings for internet
+			//testings for internet
+			if(network.tor_active == 0 && network.new_database_start == 0){System.out.println("mining net_tor 0"); break;}//network.status_x2.setIcon(network.imx0); 
+			//testings for internet
 
-				//testings for status
-				if(!krypton_net_client.blocks_uptodate){System.out.println("mining old blocks"); break;}//network.status_x2.setIcon(network.imx0);
-				//testings for status
+			//testings for internet
+			//if(network.connection_active == 0 && network.new_database_start == 0){System.out.println("mining net_client 0"); break;}//network.status_x2.setIcon(network.imx0); 
+			//testings for internet
 
-				//restarting
-				if(krypton_net_client.breakx2 > 130){System.out.println("TOR is about to restart"); break;}
-				//restarting
+			//testings for status
+			if(!network.blocks_uptodate){System.out.println("mining old blocks"); break;}//network.status_x2.setIcon(network.imx0);
+			//testings for status
+
+			//restarting
+			if(network.mining_block_ready == 1){System.out.println("Block is ready to send..."); break;}
+			//restarting
 
 
-			if(mining1 == true){network.mining_status = 1;}
-			else{network.mining_status = 0;}
+			//turn on the icon
+			network.mining_status = 1;
+
+			//System.out.println("kkk");
 
 			mine();
 			try{Thread.sleep(network.mining_speed);} catch(InterruptedException e){e.printStackTrace();}
@@ -153,6 +161,9 @@ public void run(){//************************************************************
 
 		}//while**********************************************************************************
 
+		//JOptionPane.showMessageDialog(null, "Mining " + network.new_database_start);
+
+		network.mining_status = 0;
 
 		//if(!mining2){network.status_x2.setIcon(network.imx0);}
 		//else if(!mining3){network.status_x2.setIcon(network.imx0);}
@@ -186,10 +197,10 @@ public void run(){//************************************************************
 		int test_db = 0;
 		while(network.database_in_use == 1){
 
-    			System.out.println("Database in use...mmh");
-				try{Thread.sleep(1000);} catch (InterruptedException e){}
-				test_db++;
-				if(test_db > 20){break;}
+    		System.out.println("Database in use...mmh");
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			test_db++;
+			if(test_db > 20){break;}
 
     	}//*********************************
 
@@ -234,9 +245,11 @@ public void run(){//************************************************************
 		
 
 			if(network.new_database_start == 0 && tests1 > 0){
+
 				System.out.println("");
 				krypton_database_verify_id verifyx = new krypton_database_verify_id(new_block_id);
 				System.out.println("");
+				
 			}//if*********************************************
 
 			System.out.println("tokenx IDX1 " + tokenx[0]);
@@ -295,8 +308,9 @@ public void run(){//************************************************************
 
 	public void mine(){
 
-	//System.out.println("Looking...");
+		//System.out.println("Looking...");
 
+		encode_date = Long.toString(System.currentTimeMillis());
 
 		encode = encode_date + old_block_mining_hash + new_block_hash + Integer.toString(noosex);
 
@@ -350,16 +364,16 @@ public void run(){//************************************************************
 
 	public void update(){
 
-	Long thisTick = System.currentTimeMillis();
+		Long thisTick = System.currentTimeMillis();
 
 
 		int test_db = 0;
 		while(network.database_in_use == 1){
 
-    			System.out.println("Database in use... >>>");
-				try{Thread.sleep(1000);} catch (InterruptedException e){}
-				test_db++;
-				if(test_db > 20){break;}
+    		System.out.println("Database in use... >>>");
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			test_db++;
+			if(test_db > 20){break;}
 
     	}//*********************************
 
@@ -372,6 +386,7 @@ public void run(){//************************************************************
 
 
 		System.out.println("new block! " + encode);
+		network.programst = "New block! (" + tokenx[0] + ")";
 
 		try{
 

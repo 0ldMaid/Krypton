@@ -76,7 +76,7 @@ test(String[] argsx){//*********************************************************
 	//command = argsx[0];
 	request_status();
 
-
+	try{Thread.sleep(10000);} catch (InterruptedException e){}
 
 }//**************************************************************************************************
 
@@ -101,8 +101,9 @@ public void request_status(){//*************************************************
 	try{
 
 		JSONObject obj = new JSONObject();
-		obj.put("request", "status");
-		obj.put("password", "1234");
+		obj.put("request", "set_transfer_block");
+		obj.put("item_id", "102119");
+		obj.put("send_to", "6bpczgx79U6zcWHkEt3GTpGFBbRXNhQpxRHyELYd7qrV");
 
 		StringWriter out = new StringWriter();
 		obj.writeJSONString(out);

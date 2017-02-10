@@ -10,6 +10,11 @@ import java.awt.Toolkit;
 
 import java.security.MessageDigest;
 
+import java.awt.Toolkit;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.*;
+
 import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -39,39 +44,42 @@ import org.spongycastle.util.encoders.Base64;
 
 public class edit_transfer_item extends JFrame implements ActionListener{//************************************************************************
 
-static String tokenx[] = new String[krypton.listing_size];
+
+
+static String tokenx[] = new String[network.listing_size];
 
 static int showid = 0;
 
+Timer xtimerx;//class loop.
+Toolkit toolkit;
 
-	JLabel headerb1_l = new JLabel("Transfer Token", JLabel.LEFT);
-	static JLabel headerb2_l = new JLabel("You have 0 token(s)", JLabel.LEFT);
-	static JLabel headerb3_l = new JLabel("", JLabel.LEFT);
-	JLabel headerb4_l = new JLabel("", JLabel.LEFT);
+JLabel headerb1_l = new JLabel("Transfer Token", JLabel.LEFT);
+static JLabel headerb2_l = new JLabel("You have 0 token(s)", JLabel.LEFT);
+static JLabel headerb3_l = new JLabel("", JLabel.LEFT);
+JLabel headerb4_l = new JLabel("", JLabel.LEFT);
 
-	JLabel header1_l = new JLabel("Token ID", JLabel.RIGHT);
-	JLabel header2_l = new JLabel("To Account ID", JLabel.RIGHT);
-	JLabel header3_l = new JLabel("Amount", JLabel.RIGHT);
-	JLabel header4_l = new JLabel("", JLabel.RIGHT);
+JLabel header1_l = new JLabel("Token ID", JLabel.RIGHT);
+JLabel header2_l = new JLabel("To Account ID", JLabel.RIGHT);
+JLabel header3_l = new JLabel("Amount", JLabel.RIGHT);
+JLabel header4_l = new JLabel("", JLabel.RIGHT);
 
-	JLabel headerb5_l = new JLabel("", JLabel.LEFT);
-	JLabel headerb6_l = new JLabel("", JLabel.LEFT);
+JLabel headerb5_l = new JLabel("", JLabel.LEFT);
+JLabel headerb6_l = new JLabel("", JLabel.LEFT);
 
+String[] tokenx_buffer = new String[network.listing_size];
 
-	JButton get_id = new JButton("Get ID");
-	JButton transferx = new JButton("Transfer");
+JButton get_id = new JButton("Get ID");
+JButton transferx = new JButton("Transfer");
 
-	static JTextField token_id = new JTextField("", 10);
-	static JTextField account_id = new JTextField("", 20);
+static JTextField token_id = new JTextField("", 10);
+static JTextField account_id = new JTextField("", 20);
 
+JLabel header1_space = new JLabel("", JLabel.LEFT);
+JLabel header2_space = new JLabel("", JLabel.LEFT);
+JLabel header3_space = new JLabel("", JLabel.LEFT);
 
-	JLabel header1_space = new JLabel("", JLabel.LEFT);
-	JLabel header2_space = new JLabel("", JLabel.LEFT);
-	JLabel header3_space = new JLabel("", JLabel.LEFT);
-
-
-	SpinnerModel model;    
-	JSpinner spinner;
+static SpinnerModel model;    
+static JSpinner spinner;
 
 
 
@@ -87,15 +95,15 @@ edit_transfer_item(){//****************************
 
 	get_id.setPreferredSize(new Dimension(105, 20));
 	get_id.setOpaque(true);
-	get_id.setBackground(krypton.jgray);//darkgray08
-	get_id.setForeground(krypton.blackx);//darkgray08
+	get_id.setBackground(network.jgray);//darkgray08
+	get_id.setForeground(network.blackx);//darkgray08
 	get_id.setToolTipText("Get another token");
 	get_id.addActionListener(this);
 
 
 
-	transferx.setForeground(krypton.blackx);//darkgray08
-	transferx.setBackground(krypton.jgray);//darkgray08
+	transferx.setForeground(network.blackx);//darkgray08
+	transferx.setBackground(network.jgray);//darkgray08
 	transferx.addActionListener(this);
 
 
@@ -111,31 +119,35 @@ edit_transfer_item(){//****************************
 	headerb5_l.setPreferredSize(new Dimension(355, 20));
 	headerb6_l.setPreferredSize(new Dimension(255, 20));
 
-	System.out.println("base58_id " + krypton.base58_id);
+	System.out.println("base58_id " + network.base58_id);
 
-	headerb2_l.setText("You have " + Integer.toString(krypton.database_listings_owner) + " token(s)");
-	headerb2_l.setFont(krypton.f_01);
+	headerb2_l.setText("You have " + Integer.toString(network.database_listings_owner) + " token(s)");
+	headerb2_l.setFont(network.f_01);
 	headerb3_l.setText("");
-	headerb3_l.setFont(krypton.f_01);
+	headerb3_l.setFont(network.f_01);
 
 	token_id.setText("");
-	token_id.setBorder(BorderFactory.createLineBorder(krypton.whitex));
+	token_id.setBorder(BorderFactory.createLineBorder(network.whitex));
 
 	account_id.setText("");
-	account_id.setBorder(BorderFactory.createLineBorder(krypton.whitex));
+	account_id.setBorder(BorderFactory.createLineBorder(network.whitex));
 
 
 
 	try{
 
-		model = new SpinnerNumberModel(1, 1, krypton.database_listings_owner, 1);     
+		int testerh = network.database_listings_owner;
 
-	}catch(Exception e){model = new SpinnerNumberModel(1, 1, 1, 1);  }
+		if(testerh < 1){testerh = 17;}
+
+		model = new SpinnerNumberModel(1, 1, testerh, 1);     
+
+	}catch(Exception e){}
 
 
 	spinner = new JSpinner(model);
 	spinner.setPreferredSize(new Dimension(50, 22));
-	spinner.setBorder(BorderFactory.createLineBorder(krypton.whitex));
+	spinner.setBorder(BorderFactory.createLineBorder(network.whitex));
 
 
 
@@ -148,7 +160,7 @@ edit_transfer_item(){//****************************
 
 	JPanel transferp = new JPanel();
 	transferp.setLayout(new FlowLayout());
-	transferp.setBackground(krypton.jgray);//darkgray08
+	transferp.setBackground(network.jgray);//darkgray08
 	transferp.setPreferredSize(new Dimension(400, 240));
 	transferp.add(headerb1_l);
 	transferp.add(headerb2_l);
@@ -164,11 +176,11 @@ edit_transfer_item(){//****************************
 
 
 
-	krypton.build3.add(transferp);
+	network.build3.add(transferp);
 
 
 	showid = 0;
-	show_token();
+	//show_token();
 
 
 }//csv_loader_x1********************************************************
@@ -178,7 +190,25 @@ edit_transfer_item(){//****************************
 
 
 
+	static public void resetspx(){
 
+		System.out.println("Reset Spinner");
+
+		int value = (Integer) spinner.getValue();
+
+		try{
+
+			System.out.println("network.database_listings_owner " + network.database_listings_owner);
+			//JOptionPane.showMessageDialog(null, Integer.toString(network.database_listings_owner));
+
+			model = new SpinnerNumberModel(value, 1, network.database_listings_owner, 1);     
+
+			spinner.setModel(model);
+
+		}catch(Exception e){e.printStackTrace();}
+
+
+	}//***************************
 
 
 
@@ -192,82 +222,50 @@ edit_transfer_item(){//****************************
 
 			if(showid > -1){
 
-				String req_id = krypton.my_listings.get(showid).toString();
+				String req_id = network.my_listings.get(showid).toString();
 				tokenx = get_token(req_id);
 				token_id.setText(req_id);
 
 			}//if
+			else{JOptionPane.showMessageDialog(null, "You have no tokens.");}
 
-		}catch(Exception e){}
+		}catch(Exception e){e.printStackTrace(); JOptionPane.showMessageDialog(null, "System is not ready!");}
 
 	}//*****************
 
 
 
+
+
+
+
+
+
 	public static String[] get_token(String x){
 
-
-		String[] token1 = new String[krypton.listing_size];
+		String[] token1 = new String[network.listing_size];
 
 		String jsonText = new String("");
 
+		while(network.database_in_use == 1){
 
-		try{
+			int test_db = 0;
+    		System.out.println("Database in use... get_token transfer");
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			test_db++;
 
-			JSONObject obj = new JSONObject();
-			obj.put("request", "get_token");
-			obj.put("item_id", x);
-			obj.put("password", "1234");
+    	}//*********************************
 
-			StringWriter out = new StringWriter();
-			obj.writeJSONString(out);
-			jsonText = out.toString();
-			System.out.println(jsonText);
-
-		}catch(Exception e){System.out.println("JSON ERROR");}
-
-
-
-		String sentence;   
-		String modifiedSentence = new String();   
-
-		try{
-
-			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
-			System.out.println(">>> " + "localhost" + " " + "55556");
-			Socket clientSocket = new Socket("127.0.0.1", 55556);   
-			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
-			sentence = jsonText;  
-			outToServer.writeBytes(sentence + '\n');   
-			modifiedSentence = inFromServer.readLine();   
-			System.out.println("FROM SERVER: " + modifiedSentence);
-			clientSocket.close();
-
-
-			JSONParser parserx = new JSONParser();
-			Object objx = parserx.parse(modifiedSentence);
-			JSONObject jsonObjectx = (JSONObject) objx;
-
-				String item_xf = (String) jsonObjectx.get("message");
-
-				Object objx2 = parserx.parse(item_xf);
-				JSONObject jsonObjectx2 = (JSONObject) objx2;
-
-				for(int loop = 0; loop < krypton.listing_size; loop++){//************
-
-					System.out.println("GET " + krypton.item_layout[loop]);
-					token1[loop] = (String) jsonObjectx2.get(krypton.item_layout[loop]);
-
-				}//******************************************************************
-
-
-		}catch(Exception e){e.printStackTrace(); System.out.println("API SERVER OFFLINE!"); modifiedSentence = "API SERVER OFFLINE!";}
-
+		krypton_database_get_token tokenx = new krypton_database_get_token();
+		token1 = tokenx.get_token(x);
 
 		return token1;
 
-	}//****************************************
+	}
+
+
+
+
 
 
 
@@ -277,18 +275,34 @@ edit_transfer_item(){//****************************
 
 	public void update_yes(){
 
+		//get the value first
 		int value = (Integer) spinner.getValue();
 
+
+		//reset the spinner if the key has changed
+		try{
+
+			model = new SpinnerNumberModel(value, 1, network.database_listings_owner, 1);  
+			//JOptionPane.showMessageDialog(null, Integer.toString(network.database_listings_owner));
+   
+			spinner = new JSpinner(model);
+
+		}catch(Exception e){e.printStackTrace();}
+
+
+	
+
+		//continue
 		String[] token_array = get_token(token_id.getText());
 
 		System.out.println("token_array[60] " + token_array[60]);
-		System.out.println("base58_id " + krypton.base58_id);
+		System.out.println("base58_id " + network.base58_id);
 
 
-		if(token_array[60].equals(krypton.base58_id)){
+		if(token_array[60].equals(network.base58_id)){
 
 
-			if(account_id.getText().length() < 43){
+			if(account_id.getText().length() < 43 || account_id.getText().length() > 50){
 
 				JOptionPane.showMessageDialog(null, "Account ID is not valid!");
 
@@ -308,24 +322,25 @@ edit_transfer_item(){//****************************
 					}//************
 					else if(value > 1){
 
-						mining.mining3 = false;
+						//we don't have access to the mining class
+						//mining.mining3 = false;
 						System.out.println("transfer many");
 
 						for (int loop = 0; loop < value; loop++){
 
-							krypton_database_get_token tokenx4b = new krypton_database_get_token();
-							String[] token_array2 = tokenx4b.get_token( krypton.my_listings.get(loop).toString() );
+							//krypton_database_get_token tokenx4b = new krypton_database_get_token();
+							String[] token_array2 = get_token( network.my_listings.get(loop).toString() );
 
 							System.out.println("token_array[60] " + token_array[60]);
-							System.out.println("base58_id " + krypton.base58_id);
+							System.out.println("base58_id " + network.base58_id);
 
  							tokenx = token_array2;
 							updatet();
 
 						}//for***********************************
 
-						krypton_database_load reload = new krypton_database_load();
-						mining.mining3 = true;
+						//krypton_database_load reload = new krypton_database_load();
+						//mining.mining3 = true;
 						account_id.setText("");
 
 					}//else if
@@ -350,12 +365,12 @@ edit_transfer_item(){//****************************
 
 	public void updatet(){
 
-	System.out.println("Update");
+		System.out.println("Update");
 
 
 		tokenx[3] = Long.toString( System.currentTimeMillis() );
 
-		tokenx[4] = krypton.settingsx[5];
+		tokenx[4] = network.settingsx[5];
 
 		//tokenx[9] = tokenx[9];
 
@@ -386,7 +401,7 @@ edit_transfer_item(){//****************************
 
                 byte[] message = Base64.toBase64String(sha256_1x).getBytes("UTF8");
 
-	    		byte[] clear = Base64.decode(krypton.settingsx[4]);
+	    		byte[] clear = Base64.decode(network.settingsx[4]);
     			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
     			KeyFactory fact = KeyFactory.getInstance("RSA");
     			PrivateKey priv = fact.generatePrivate(keySpec);
@@ -425,7 +440,14 @@ edit_transfer_item(){//****************************
                 System.out.println(sigpk3.verify(signatureBytesx3));
 
 
-                update_send(tokenx);
+                //send the update
+	            tokenx_buffer = tokenx;
+				toolkit = Toolkit.getDefaultToolkit();
+				xtimerx = new Timer();
+				xtimerx.schedule(new RemindTask_send_update(), 0);
+	            //send the update
+
+				network.icon.displayMessage("Krypton", "Token transfer ID (" + tokenx[0] + ")", TrayIcon.MessageType.INFO);
 
 
 		}catch(Exception e){e.printStackTrace();}
@@ -439,79 +461,35 @@ edit_transfer_item(){//****************************
 
 
 
-	public void update_send(String[] token){
-
-
-		String[] token1 = new String[krypton.listing_size];
-
-		String jsonText = new String("");
-
-
-		try{
-
-			JSONObject obj2 = new JSONObject();
-
-			for (int loop = 0; loop < tokenx.length; loop++){
-
-				obj2.put(krypton.item_layout[loop], tokenx[loop]);
-
-			}//**********************************************
-
-			StringWriter out2 = new StringWriter();
-			obj2.writeJSONString(out2);
-			String jsonText2 = out2.toString();
-			System.out.println(jsonText2);
-
-			JSONObject obj = new JSONObject();
-			obj.put("request", "set_transfer_block");
-			obj.put("password", "1234");
-			obj.put("item_array", jsonText2);
-
-			StringWriter out = new StringWriter();
-			obj.writeJSONString(out);
-			jsonText = out.toString();
-			System.out.println(jsonText);
-
-		}catch(Exception e){System.out.println("JSON ERROR");}
 
 
 
-		String sentence;   
-		String modifiedSentence = new String();   
+	class RemindTask_send_update extends TimerTask{
+	Runtime rxrunti = Runtime.getRuntime();
 
-		try{
+	public void run(){//************************************************************************************
 
-			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
-			System.out.println(">>> " + "localhost" + " " + "55556");
-			Socket clientSocket = new Socket("127.0.0.1", 55556);   
-			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
-			sentence = jsonText;  
-			outToServer.writeBytes(sentence + '\n');   
-			modifiedSentence = inFromServer.readLine();   
-			System.out.println("FROM SERVER: " + modifiedSentence);
-			clientSocket.close();
+		krypton_update_token update = new krypton_update_token(tokenx_buffer);
+        //krypton_net_client.send_unconfirmed_update(tokenx_buffer);
+		krypton_database_load load = new krypton_database_load();
 
-
-			JSONParser parserx = new JSONParser();
-			Object objx = parserx.parse(modifiedSentence);
-			JSONObject jsonObjectx = (JSONObject) objx;
-
-			String item_xf = (String) jsonObjectx.get("message");
-
-		}catch(Exception e){e.printStackTrace(); System.out.println("API SERVER OFFLINE!"); modifiedSentence = "API SERVER OFFLINE!";}
-
-
-
-	}//*************************************
+	}//runx***************************************************************************************************
+    }//remindtask
 
 
 
 
+    public void show_id_test(){
+
+    	if(token_id.getText().toString().length() == 0){showid = 0;}
+    	else{showid++;}
+
+    	if(network.my_listings.size() == 0){showid = -1;}
+
+    	show_token();
 
 
-
-
+    }//
 
 
 
@@ -520,7 +498,7 @@ edit_transfer_item(){//****************************
 //handel all the button clicks. 
 public void actionPerformed(ActionEvent event){
 
-	if(event.getSource() == get_id)      {showid++; show_token();}
+	if(event.getSource() == get_id)      {show_id_test();}
 	if(event.getSource() == transferx)   {update_yes();}
 
 }//********************************************

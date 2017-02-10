@@ -88,196 +88,193 @@ public class krypton_database_build{
 
 
 
-
 	        try{
 
 
-                    krypton_database_driver.s.execute("create table mining_db(xd integer not null primary key GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), link_id integer, mining_date varchar(60), mining_difficulty varchar(60), mining_noose varchar(60), mining_old_block varchar(100), mining_new_block varchar(100), previous_hash_id varchar(100), hash_id varchar(100), sig_id varchar(1160))"); 
-                    System.out.println("Created table mining");
+                krypton_database_driver.s.execute("create table mining_db(xd integer not null primary key GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), link_id integer, mining_date varchar(60), mining_difficulty varchar(60), mining_noose varchar(60), mining_old_block varchar(100), mining_new_block varchar(100), previous_hash_id varchar(100), hash_id varchar(100), sig_id varchar(1160))"); 
+                System.out.println("Created table mining");
 
-                    krypton_database_driver.s.execute("create table listings_db(xd integer not null primary key GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), id integer, hash_id varchar(100), sig_id varchar(1160), date_id varchar(60), owner_id varchar(560), owner_rating varchar(100), currency varchar(160), custom_template varchar(160), custom_1 varchar(160), custom_2 varchar(160), custom_3 varchar(160), item_errors varchar(160), item_date_listed varchar(160), item_date_listed_day varchar(160), item_date_listed_int varchar(160), item_hits varchar(160), item_confirm_code varchar(160), item_confirmed varchar(160), item_cost varchar(160), item_description varchar(3160), item_id varchar(160), item_price varchar(160), item_weight varchar(160), item_listing_id varchar(160), item_notes varchar(160), item_package_d varchar(160), item_package_l varchar(160), item_package_w varchar(160), item_part_number varchar(160), item_title varchar(160), item_title_url varchar(160), item_type varchar(160), item_search_1 varchar(160), item_search_2 varchar(160), item_search_3 varchar(160), item_site_id varchar(160), item_site_url varchar(160), item_picture_1 varchar(160), item_total_on_hand varchar(160), sale_payment_address varchar(160), sale_payment_type varchar(160), sale_fees varchar(160), sale_id varchar(160), sale_seller_id varchar(160), sale_status varchar(160), sale_tax varchar(160), sale_shipping_company varchar(160), sale_shipping_in varchar(160), sale_shipping_out varchar(160), sale_source_of_sale varchar(160), sale_total_sale_amount varchar(160), sale_tracking_number varchar(160), sale_transaction_id varchar(160), sale_transaction_info varchar(160), seller_address_1 varchar(160), seller_address_2 varchar(160), seller_address_city varchar(160), seller_address_state varchar(160), seller_address_zip varchar(160), seller_address_country varchar(160), seller_id varchar(160), seller_ip varchar(160), seller_email varchar(160), seller_first_name varchar(160), seller_last_name varchar(160), seller_notes varchar(160), seller_phone varchar(160), seller_logo varchar(160), seller_url varchar(160))"); 
-                    System.out.println("Created table listings");
+                krypton_database_driver.s.execute("create table listings_db(xd integer not null primary key GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), id integer, hash_id varchar(100), sig_id varchar(1160), date_id varchar(60), owner_id varchar(560), owner_rating varchar(100), currency varchar(160), custom_template varchar(160), custom_1 varchar(160), custom_2 varchar(160), custom_3 varchar(160), item_errors varchar(160), item_date_listed varchar(160), item_date_listed_day varchar(160), item_date_listed_int varchar(160), item_hits varchar(160), item_confirm_code varchar(160), item_confirmed varchar(160), item_cost varchar(160), item_description varchar(3160), item_id varchar(160), item_price varchar(160), item_weight varchar(160), item_listing_id varchar(160), item_notes varchar(160), item_package_d varchar(160), item_package_l varchar(160), item_package_w varchar(160), item_part_number varchar(160), item_title varchar(160), item_title_url varchar(160), item_type varchar(160), item_search_1 varchar(160), item_search_2 varchar(160), item_search_3 varchar(160), item_site_id varchar(160), item_site_url varchar(160), item_picture_1 varchar(160), item_total_on_hand varchar(160), sale_payment_address varchar(160), sale_payment_type varchar(160), sale_fees varchar(160), sale_id varchar(160), sale_seller_id varchar(160), sale_status varchar(160), sale_tax varchar(160), sale_shipping_company varchar(160), sale_shipping_in varchar(160), sale_shipping_out varchar(160), sale_source_of_sale varchar(160), sale_total_sale_amount varchar(160), sale_tracking_number varchar(160), sale_transaction_id varchar(160), sale_transaction_info varchar(160), seller_address_1 varchar(160), seller_address_2 varchar(160), seller_address_city varchar(160), seller_address_state varchar(160), seller_address_zip varchar(160), seller_address_country varchar(160), seller_id varchar(160), seller_ip varchar(160), seller_email varchar(160), seller_first_name varchar(160), seller_last_name varchar(160), seller_notes varchar(160), seller_phone varchar(160), seller_logo varchar(160), seller_url varchar(160))"); 
+                System.out.println("Created table listings");
 
-                    krypton_database_driver.s.execute("create table unconfirmed_db(xd integer not null primary key GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), id integer, hash_id varchar(100), sig_id varchar(1160), date_id varchar(60), owner_id varchar(560), owner_rating varchar(100), currency varchar(160), custom_template varchar(160), custom_1 varchar(160), custom_2 varchar(160), custom_3 varchar(160), item_errors varchar(160), item_date_listed varchar(160), item_date_listed_day varchar(160), item_date_listed_int varchar(160), item_hits varchar(160), item_confirm_code varchar(160), item_confirmed varchar(160), item_cost varchar(160), item_description varchar(3160), item_id varchar(160), item_price varchar(160), item_weight varchar(160), item_listing_id varchar(160), item_notes varchar(160), item_package_d varchar(160), item_package_l varchar(160), item_package_w varchar(160), item_part_number varchar(160), item_title varchar(160), item_title_url varchar(160), item_type varchar(160), item_search_1 varchar(160), item_search_2 varchar(160), item_search_3 varchar(160), item_site_id varchar(160), item_site_url varchar(160), item_picture_1 varchar(160), item_total_on_hand varchar(160), sale_payment_address varchar(160), sale_payment_type varchar(160), sale_fees varchar(160), sale_id varchar(160), sale_seller_id varchar(160), sale_status varchar(160), sale_tax varchar(160), sale_shipping_company varchar(160), sale_shipping_in varchar(160), sale_shipping_out varchar(160), sale_source_of_sale varchar(160), sale_total_sale_amount varchar(160), sale_tracking_number varchar(160), sale_transaction_id varchar(160), sale_transaction_info varchar(160), seller_address_1 varchar(160), seller_address_2 varchar(160), seller_address_city varchar(160), seller_address_state varchar(160), seller_address_zip varchar(160), seller_address_country varchar(160), seller_id varchar(160), seller_ip varchar(160), seller_email varchar(160), seller_first_name varchar(160), seller_last_name varchar(160), seller_notes varchar(160), seller_phone varchar(160), seller_logo varchar(160), seller_url varchar(160))"); 
-                    System.out.println("Created table unconfirmed");
+                krypton_database_driver.s.execute("create table unconfirmed_db(xd integer not null primary key GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), id integer, hash_id varchar(100), sig_id varchar(1160), date_id varchar(60), owner_id varchar(560), owner_rating varchar(100), currency varchar(160), custom_template varchar(160), custom_1 varchar(160), custom_2 varchar(160), custom_3 varchar(160), item_errors varchar(160), item_date_listed varchar(160), item_date_listed_day varchar(160), item_date_listed_int varchar(160), item_hits varchar(160), item_confirm_code varchar(160), item_confirmed varchar(160), item_cost varchar(160), item_description varchar(3160), item_id varchar(160), item_price varchar(160), item_weight varchar(160), item_listing_id varchar(160), item_notes varchar(160), item_package_d varchar(160), item_package_l varchar(160), item_package_w varchar(160), item_part_number varchar(160), item_title varchar(160), item_title_url varchar(160), item_type varchar(160), item_search_1 varchar(160), item_search_2 varchar(160), item_search_3 varchar(160), item_site_id varchar(160), item_site_url varchar(160), item_picture_1 varchar(160), item_total_on_hand varchar(160), sale_payment_address varchar(160), sale_payment_type varchar(160), sale_fees varchar(160), sale_id varchar(160), sale_seller_id varchar(160), sale_status varchar(160), sale_tax varchar(160), sale_shipping_company varchar(160), sale_shipping_in varchar(160), sale_shipping_out varchar(160), sale_source_of_sale varchar(160), sale_total_sale_amount varchar(160), sale_tracking_number varchar(160), sale_transaction_id varchar(160), sale_transaction_info varchar(160), seller_address_1 varchar(160), seller_address_2 varchar(160), seller_address_city varchar(160), seller_address_state varchar(160), seller_address_zip varchar(160), seller_address_country varchar(160), seller_id varchar(160), seller_ip varchar(160), seller_email varchar(160), seller_first_name varchar(160), seller_last_name varchar(160), seller_notes varchar(160), seller_phone varchar(160), seller_logo varchar(160), seller_url varchar(160))"); 
+                System.out.println("Created table unconfirmed");
 
-                    krypton_database_driver.s.execute("create table send_buffer(xd integer not null primary key GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), id integer, hash_id varchar(100), sig_id varchar(1160), date_id varchar(60), owner_id varchar(560), owner_rating varchar(100), currency varchar(160), custom_template varchar(160), custom_1 varchar(160), custom_2 varchar(160), custom_3 varchar(160), item_errors varchar(160), item_date_listed varchar(160), item_date_listed_day varchar(160), item_date_listed_int varchar(160), item_hits varchar(160), item_confirm_code varchar(160), item_confirmed varchar(160), item_cost varchar(160), item_description varchar(3160), item_id varchar(160), item_price varchar(160), item_weight varchar(160), item_listing_id varchar(160), item_notes varchar(160), item_package_d varchar(160), item_package_l varchar(160), item_package_w varchar(160), item_part_number varchar(160), item_title varchar(160), item_title_url varchar(160), item_type varchar(160), item_search_1 varchar(160), item_search_2 varchar(160), item_search_3 varchar(160), item_site_id varchar(160), item_site_url varchar(160), item_picture_1 varchar(160), item_total_on_hand varchar(160), sale_payment_address varchar(160), sale_payment_type varchar(160), sale_fees varchar(160), sale_id varchar(160), sale_seller_id varchar(160), sale_status varchar(160), sale_tax varchar(160), sale_shipping_company varchar(160), sale_shipping_in varchar(160), sale_shipping_out varchar(160), sale_source_of_sale varchar(160), sale_total_sale_amount varchar(160), sale_tracking_number varchar(160), sale_transaction_id varchar(160), sale_transaction_info varchar(160), seller_address_1 varchar(160), seller_address_2 varchar(160), seller_address_city varchar(160), seller_address_state varchar(160), seller_address_zip varchar(160), seller_address_country varchar(160), seller_id varchar(160), seller_ip varchar(160), seller_email varchar(160), seller_first_name varchar(160), seller_last_name varchar(160), seller_notes varchar(160), seller_phone varchar(160), seller_logo varchar(160), seller_url varchar(160))"); 
-                    System.out.println("Created table buffer");
+                krypton_database_driver.s.execute("create table send_buffer(xd integer not null primary key GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), id integer, hash_id varchar(100), sig_id varchar(1160), date_id varchar(60), owner_id varchar(560), owner_rating varchar(100), currency varchar(160), custom_template varchar(160), custom_1 varchar(160), custom_2 varchar(160), custom_3 varchar(160), item_errors varchar(160), item_date_listed varchar(160), item_date_listed_day varchar(160), item_date_listed_int varchar(160), item_hits varchar(160), item_confirm_code varchar(160), item_confirmed varchar(160), item_cost varchar(160), item_description varchar(3160), item_id varchar(160), item_price varchar(160), item_weight varchar(160), item_listing_id varchar(160), item_notes varchar(160), item_package_d varchar(160), item_package_l varchar(160), item_package_w varchar(160), item_part_number varchar(160), item_title varchar(160), item_title_url varchar(160), item_type varchar(160), item_search_1 varchar(160), item_search_2 varchar(160), item_search_3 varchar(160), item_site_id varchar(160), item_site_url varchar(160), item_picture_1 varchar(160), item_total_on_hand varchar(160), sale_payment_address varchar(160), sale_payment_type varchar(160), sale_fees varchar(160), sale_id varchar(160), sale_seller_id varchar(160), sale_status varchar(160), sale_tax varchar(160), sale_shipping_company varchar(160), sale_shipping_in varchar(160), sale_shipping_out varchar(160), sale_source_of_sale varchar(160), sale_total_sale_amount varchar(160), sale_tracking_number varchar(160), sale_transaction_id varchar(160), sale_transaction_info varchar(160), seller_address_1 varchar(160), seller_address_2 varchar(160), seller_address_city varchar(160), seller_address_state varchar(160), seller_address_zip varchar(160), seller_address_country varchar(160), seller_id varchar(160), seller_ip varchar(160), seller_email varchar(160), seller_first_name varchar(160), seller_last_name varchar(160), seller_notes varchar(160), seller_phone varchar(160), seller_logo varchar(160), seller_url varchar(160))"); 
+                System.out.println("Created table buffer");
 
-                    krypton_database_driver.s.execute("create table backup_db(xd integer not null primary key GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), id integer, hash_id varchar(100), sig_id varchar(1160), date_id varchar(60), owner_id varchar(560), owner_rating varchar(100), currency varchar(160), custom_template varchar(160), custom_1 varchar(160), custom_2 varchar(160), custom_3 varchar(160), item_errors varchar(160), item_date_listed varchar(160), item_date_listed_day varchar(160), item_date_listed_int varchar(160), item_hits varchar(160), item_confirm_code varchar(160), item_confirmed varchar(160), item_cost varchar(160), item_description varchar(3160), item_id varchar(160), item_price varchar(160), item_weight varchar(160), item_listing_id varchar(160), item_notes varchar(160), item_package_d varchar(160), item_package_l varchar(160), item_package_w varchar(160), item_part_number varchar(160), item_title varchar(160), item_title_url varchar(160), item_type varchar(160), item_search_1 varchar(160), item_search_2 varchar(160), item_search_3 varchar(160), item_site_id varchar(160), item_site_url varchar(160), item_picture_1 varchar(160), item_total_on_hand varchar(160), sale_payment_address varchar(160), sale_payment_type varchar(160), sale_fees varchar(160), sale_id varchar(160), sale_seller_id varchar(160), sale_status varchar(160), sale_tax varchar(160), sale_shipping_company varchar(160), sale_shipping_in varchar(160), sale_shipping_out varchar(160), sale_source_of_sale varchar(160), sale_total_sale_amount varchar(160), sale_tracking_number varchar(160), sale_transaction_id varchar(160), sale_transaction_info varchar(160), seller_address_1 varchar(160), seller_address_2 varchar(160), seller_address_city varchar(160), seller_address_state varchar(160), seller_address_zip varchar(160), seller_address_country varchar(160), seller_id varchar(160), seller_ip varchar(160), seller_email varchar(160), seller_first_name varchar(160), seller_last_name varchar(160), seller_notes varchar(160), seller_phone varchar(160), seller_logo varchar(160), seller_url varchar(160))"); 
-                    System.out.println("Created table backup");
+                krypton_database_driver.s.execute("create table backup_db(xd integer not null primary key GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), id integer, hash_id varchar(100), sig_id varchar(1160), date_id varchar(60), owner_id varchar(560), owner_rating varchar(100), currency varchar(160), custom_template varchar(160), custom_1 varchar(160), custom_2 varchar(160), custom_3 varchar(160), item_errors varchar(160), item_date_listed varchar(160), item_date_listed_day varchar(160), item_date_listed_int varchar(160), item_hits varchar(160), item_confirm_code varchar(160), item_confirmed varchar(160), item_cost varchar(160), item_description varchar(3160), item_id varchar(160), item_price varchar(160), item_weight varchar(160), item_listing_id varchar(160), item_notes varchar(160), item_package_d varchar(160), item_package_l varchar(160), item_package_w varchar(160), item_part_number varchar(160), item_title varchar(160), item_title_url varchar(160), item_type varchar(160), item_search_1 varchar(160), item_search_2 varchar(160), item_search_3 varchar(160), item_site_id varchar(160), item_site_url varchar(160), item_picture_1 varchar(160), item_total_on_hand varchar(160), sale_payment_address varchar(160), sale_payment_type varchar(160), sale_fees varchar(160), sale_id varchar(160), sale_seller_id varchar(160), sale_status varchar(160), sale_tax varchar(160), sale_shipping_company varchar(160), sale_shipping_in varchar(160), sale_shipping_out varchar(160), sale_source_of_sale varchar(160), sale_total_sale_amount varchar(160), sale_tracking_number varchar(160), sale_transaction_id varchar(160), sale_transaction_info varchar(160), seller_address_1 varchar(160), seller_address_2 varchar(160), seller_address_city varchar(160), seller_address_state varchar(160), seller_address_zip varchar(160), seller_address_country varchar(160), seller_id varchar(160), seller_ip varchar(160), seller_email varchar(160), seller_first_name varchar(160), seller_last_name varchar(160), seller_notes varchar(160), seller_phone varchar(160), seller_logo varchar(160), seller_url varchar(160))"); 
+                System.out.println("Created table backup");
 
-	                krypton_database_driver.s.execute("create table network(address varchar(100))"); 
-	                System.out.println("Created table network");
+	            krypton_database_driver.s.execute("create table network(address varchar(100))"); 
+	            System.out.println("Created table network");
 
-	                krypton_database_driver.s.execute("create table settings(id integer, valuex varchar(2000))"); 
-	                System.out.println("Created table settings");
-
-
-
-
-	                DateFormat dateFormatx = new SimpleDateFormat("yyyyMMddHHmmss");
-	                Date datex = new Date();
-	                System.out.println(dateFormatx.format(datex));
+	            krypton_database_driver.s.execute("create table settings(id integer, valuex varchar(2000))"); 
+	            System.out.println("Created table settings");
 
 
 
 
-
-                    //RSA keys are easy for web developers to use. 
-    	            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-                    //after non intensive search 2048 seems to be ok for now. 
-    	            kpg.initialize(2048);
-    	            keyPair = kpg.genKeyPair();
-
-    	            System.out.println("");
-    	            System.out.println("privateKey Base 64: " + Base64.toBase64String(keyPair.getPrivate().getEncoded()) );
-    	            System.out.println("");
-    	            System.out.println("Public Base 64: " + Base64.toBase64String(keyPair.getPublic().getEncoded()) );
-    	            System.out.println("");
+	            DateFormat dateFormatx = new SimpleDateFormat("yyyyMMddHHmmss");
+	            Date datex = new Date();
+	            System.out.println(dateFormatx.format(datex));
 
 
 
 
 
-                    byte[] clear = Base64.decode( Base64.toBase64String(keyPair.getPrivate().getEncoded()) );
-                    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
-                    KeyFactory fact = KeyFactory.getInstance("RSA");
-                    PrivateKey privateKey = fact.generatePrivate(keySpec);
-                    Arrays.fill(clear, (byte) 0);
+                //RSA keys are easy for web developers to use. 
+    	        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+                //after non intensive search 2048 seems to be ok for now. 
+    	        kpg.initialize(2048);
+    	        keyPair = kpg.genKeyPair();
 
-                    KeyFactory kf = KeyFactory.getInstance("RSA");
-                    RSAPrivateKeySpec priv = kf.getKeySpec(privateKey, RSAPrivateKeySpec.class);
-                    RSAPublicKeySpec keySpecx = new RSAPublicKeySpec(priv.getModulus(), BigInteger.valueOf(65537));
-                    PublicKey publicKey = kf.generatePublic(keySpecx);
-
-                    String base58x = Base64.toBase64String(publicKey.getEncoded());
-                    System.out.println("base58x " + base58x);
+    	        System.out.println("");
+    	        System.out.println("privateKey Base 64: " + Base64.toBase64String(keyPair.getPrivate().getEncoded()) );
+    	        System.out.println("");
+    	        System.out.println("Public Base 64: " + Base64.toBase64String(keyPair.getPublic().getEncoded()) );
+    	        System.out.println("");
 
 
 
 
 
+                byte[] clear = Base64.decode( Base64.toBase64String(keyPair.getPrivate().getEncoded()) );
+                PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
+                KeyFactory fact = KeyFactory.getInstance("RSA");
+                PrivateKey privateKey = fact.generatePrivate(keySpec);
+                Arrays.fill(clear, (byte) 0);
 
-                    base58 = Base64.toBase64String(keyPair.getPublic().getEncoded());
+                KeyFactory kf = KeyFactory.getInstance("RSA");
+                RSAPrivateKeySpec priv = kf.getKeySpec(privateKey, RSAPrivateKeySpec.class);
+                RSAPublicKeySpec keySpecx = new RSAPublicKeySpec(priv.getModulus(), BigInteger.valueOf(65537));
+                PublicKey publicKey = kf.generatePublic(keySpecx);
 
-
-                    int len = base58.length();
-                    byte[] data = new byte[len / 2];
-                    for (int i = 0; i < len; i += 2) {
-                        data[i / 2] = (byte) ((Character.digit(base58.charAt(i), 16) << 4) + Character.digit(base58.charAt(i+1), 16));
-                    }
-
-
-                    byte[] sha256_1 = MessageDigest.getInstance("SHA-256").digest(data);
-
-                    base58 = Base58Encode.encode(sha256_1);
-
-                    System.out.println("base58 " + base58);
+                String base58x = Base64.toBase64String(publicKey.getEncoded());
+                System.out.println("base58x " + base58x);
 
 
 
 
-                    ByteArrayOutputStream out = QRCode.from(base58).to(ImageType.PNG).withSize(156, 156).stream();
+
+
+                base58 = Base64.toBase64String(keyPair.getPublic().getEncoded());
+
+
+                int len = base58.length();
+                byte[] data = new byte[len / 2];
+                for (int i = 0; i < len; i += 2) {
+
+                    data[i / 2] = (byte) ((Character.digit(base58.charAt(i), 16) << 4) + Character.digit(base58.charAt(i+1), 16));
+               
+                }//*******************************
+
+
+
+                byte[] sha256_1 = MessageDigest.getInstance("SHA-256").digest(data);
+
+                base58 = Base58Encode.encode(sha256_1);
+
+                System.out.println("base58 " + base58);
+
+
+
+
+                ByteArrayOutputStream out = QRCode.from(base58).to(ImageType.PNG).withSize(156, 156).stream();
  
-                    try {
+                try {
 
-                        FileOutputStream fout = new FileOutputStream(new File(base58 + ".png"));
+                    FileOutputStream fout = new FileOutputStream(new File(base58 + ".png"));
  
-                        fout.write(out.toByteArray());
+                    fout.write(out.toByteArray());
  
-                        fout.flush();
-                        fout.close();
+                    fout.flush();
+                    fout.close();
  
-                    } catch (FileNotFoundException e) {
+                } catch (FileNotFoundException e) {
                         System.out.println(e.getMessage());
-                    } catch (IOException e) {
+                } catch (IOException e) {
                         System.out.println(e.getMessage());
-                    }
+                }
+
+
+
+
+                System.out.println("");
+
+
+                PreparedStatement ps = null;
+                ps = krypton_database_driver.conn.prepareStatement("insert into settings(id, valuex) values (?,?)");
+
+                int numrows = 0;
+
+                ps.setInt(1, 1);
+                ps.setString(2, "Krypton");
+                numrows = numrows + ps.executeUpdate();
+
+                ps.setInt(1, 2);
+                ps.setString(2, network.versionx);
+                numrows = numrows + ps.executeUpdate();
+
+                ps.setInt(1, 3);
+                ps.setString(2, "Krypton P2P Market");
+                numrows = numrows + ps.executeUpdate();
+
+                ps.setInt(1, 4);
+                ps.setString(2, Integer.toString(network.p2p_port));
+                numrows = numrows + ps.executeUpdate();
+
+                ps.setInt(1, 5);
+                ps.setString(2, Base64.toBase64String(keyPair.getPrivate().getEncoded()) );
+                numrows = numrows + ps.executeUpdate();
+
+                ps.setInt(1, 6);
+                ps.setString(2, Base64.toBase64String(keyPair.getPublic().getEncoded()) );
+                numrows = numrows + ps.executeUpdate();
+
+                ps.setInt(1, 7);
+                ps.setString(2, "1");
+                numrows = numrows + ps.executeUpdate();//allow all
+
+                ps.setInt(1, 8);
+                ps.setString(2, "1");
+                numrows = numrows + ps.executeUpdate();//network open
+
+                ps.setInt(1, 9);
+                ps.setString(2, "1");
+                numrows = numrows + ps.executeUpdate();//system is open or not
+
+                ps.setInt(1, 10);
+                ps.setString(2, "foomfoumyoi37qly.onion");
+                numrows = numrows + ps.executeUpdate();//favorite node
+
+                ps.setInt(1, 11);
+                ps.setString(2, dateFormatx.format(datex).toString());
+                numrows = numrows + ps.executeUpdate();
+
+
+                ps.close();
 
 
 
 
 
-
-                    System.out.println("");
-
-
-
-
-                    PreparedStatement ps = null;
-                    ps = krypton_database_driver.conn.prepareStatement("insert into settings(id, valuex) values (?,?)");
-
-                    int numrows = 0;
-
-                    ps.setInt(1, 1);
-                    ps.setString(2, "Krypton");
-                    numrows = numrows + ps.executeUpdate();
-
-                    ps.setInt(1, 2);
-                    ps.setString(2, "1.2.1");
-                    numrows = numrows + ps.executeUpdate();
-
-                    ps.setInt(1, 3);
-                    ps.setString(2, "Krypton P2P Market");
-                    numrows = numrows + ps.executeUpdate();
-
-                    ps.setInt(1, 4);
-                    ps.setString(2, Integer.toString(network.p2p_port));
-                    numrows = numrows + ps.executeUpdate();
-
-                    ps.setInt(1, 5);
-                    ps.setString(2, Base64.toBase64String(keyPair.getPrivate().getEncoded()) );
-                    numrows = numrows + ps.executeUpdate();
-
-                    ps.setInt(1, 6);
-                    ps.setString(2, Base64.toBase64String(keyPair.getPublic().getEncoded()) );
-                    numrows = numrows + ps.executeUpdate();
-
-                    ps.setInt(1, 7);
-                    ps.setString(2, "1");
-                    numrows = numrows + ps.executeUpdate();
-
-                    ps.setInt(1, 8);
-                    ps.setString(2, "1");
-                    numrows = numrows + ps.executeUpdate();
-
-                    ps.setInt(1, 9);
-                    ps.setString(2, "1");
-                    numrows = numrows + ps.executeUpdate();
-
-                    ps.setInt(1, 10);
-                    ps.setString(2, "1");
-                    numrows = numrows + ps.executeUpdate();
-
-                    ps.setInt(1, 11);
-                    ps.setString(2, dateFormatx.format(datex).toString());
-                    numrows = numrows + ps.executeUpdate();
-
-
-
-                    ps.close();
+                network.settingsx[0] = new String("Krypton");
+                network.settingsx[1] = new String(network.versionx);
+                network.settingsx[2] = new String("Krypton P2P Market");
+                network.settingsx[3] = new String(Integer.toString(network.p2p_port));
+                network.settingsx[4] = new String(Base64.toBase64String(keyPair.getPrivate().getEncoded()));
+                network.settingsx[5] = new String(Base64.toBase64String(keyPair.getPublic().getEncoded()));
+                network.settingsx[6] = new String("1");//Network OPEN
+                network.settingsx[7] = new String("1");//database all or 100
+                network.settingsx[8] = new String("1");//import nodes yes no
+                network.settingsx[9] = new String("1");//start minimized
+                network.settingsx[10] = new String(dateFormatx.format(datex).toString());
 
 
 
 
-
-                    network.settingsx[0] = new String("Krypton");
-                    network.settingsx[1] = new String(network.versionx);
-                    network.settingsx[2] = new String("Krypton P2P Market");
-                    network.settingsx[3] = new String(Integer.toString(network.p2p_port));
-                    network.settingsx[4] = new String(Base64.toBase64String(keyPair.getPrivate().getEncoded()));
-                    network.settingsx[5] = new String(Base64.toBase64String(keyPair.getPublic().getEncoded()));
-                    network.settingsx[6] = new String("1");//Network OPEN
-                    network.settingsx[7] = new String("1");//database all or 100
-                    network.settingsx[8] = new String("1");//import nodes yes no
-                    network.settingsx[9] = new String("1");//start minimized
-                    network.settingsx[10] = new String(dateFormatx.format(datex).toString());
-
-
-
-
-                    System.out.println("DBsx");
+                System.out.println("DBsx");
 
 	        }catch(Exception e){e.printStackTrace(); System.out.println("Krypton build already in use.");}
 

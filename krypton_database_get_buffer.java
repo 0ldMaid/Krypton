@@ -45,50 +45,47 @@ public class krypton_database_get_buffer{
         try{
 
 
+            boolean found_item = false;
+            String idx = new String();
+            long add_time = (long) 100000;
 
 
-                boolean found_item = false;
-                String idx = new String();
-                long add_time = (long) 100000;
 
+            for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
+
+                token_ssp2[loop1] = new String("error");
+
+            }//********************************************************************
+
+
+
+
+            System.out.println("Load unconfirmed_db..." );
+
+            krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            krypton_database_driver.s.setMaxRows(1);
+            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM send_buffer ORDER BY xd ASC");
+
+            ix0 = 0;
+            while(krypton_database_driver.rs.next()){
 
 
                 for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
 
-                    token_ssp2[loop1] = new String("error");
+                    token_ssp2[loop1] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
 
                 }//********************************************************************
 
-
-
-
-                System.out.println("Load unconfirmed_db..." );
-
-                krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                krypton_database_driver.s.setMaxRows(1);
-                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM send_buffer ORDER BY xd ASC");
-
-                ix0 = 0;
-                while(krypton_database_driver.rs.next()){
-
-
-                  for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
-
-                       token_ssp2[loop1] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
-
-                  }//********************************************************************
-
                 found_item = true;
 
-                }//while
+            }//while
 
-                System.out.println("idx " + idx);
-
-
+            System.out.println("idx " + idx);
 
 
-                krypton_database_driver.conn.commit();
-                System.out.println("Committed the transaction");
+            krypton_database_driver.conn.commit();
+            System.out.println("Committed the transaction");
+
 
         }catch(Exception e){e.printStackTrace();}
 

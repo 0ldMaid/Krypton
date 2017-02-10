@@ -110,24 +110,25 @@ krypton_net_server(){//*********************************************************
 					InetAddress IP = InetAddress.getLocalHost();
 					ServerSocket serverSocket = null;
 
-       					try{
+       				try{
 
-            				serverSocket = new ServerSocket(network.p2p_port); 
+            			serverSocket = new ServerSocket(network.p2p_port); 
 
-            				//network.status8.setText("Port Bindings: (Server: " + Integer.toString(network.p2p_port) + ") (API: " + Integer.toString(network.api_port) + ")");
-           					//network.status8.setIcon(network.imx1);
+            			//network.status8.setText("Port Bindings: (Server: " + Integer.toString(network.p2p_port) + ") (API: " + Integer.toString(network.api_port) + ")");
+           				//network.status8.setIcon(network.imx1);
 
-        				}catch(IOException e) {
+        			}catch(IOException e) {
 
-           					System.err.println("Could not listen on port: " + network.p2p_port);
-            				//JOptionPane.showMessageDialog(null, "Could not listen on port: " + network.p2p_port);
+           				System.err.println("Could not listen on port: " + network.p2p_port);
+           				network.programst = "Port blocked (" + Integer.toString(network.p2p_port) + ")";
+            			//JOptionPane.showMessageDialog(null, "Could not listen on port: " + network.p2p_port);
 
-           					//network.status8.setText("Could not listen on port: " + network.p2p_port);
-           					//network.status8.setIcon(network.imx0);
+           				//network.status8.setText("Could not listen on port: " + network.p2p_port);
+           				//network.status8.setIcon(network.imx0);
 
-							try{Thread.sleep(1000);} catch (InterruptedException ex){}
+						try{Thread.sleep(1000);} catch (InterruptedException ex){}
 
-        				}//********************
+        			}//********************
 
 
 
@@ -256,7 +257,12 @@ krypton_net_server(){//*********************************************************
         			serverSocket.close();
 
 
-				}catch(Exception e){e.printStackTrace();}
+				}catch(Exception e){
+
+					e.printStackTrace(); 
+					try{Thread.sleep(5000);} catch (InterruptedException ex){}
+
+				}//******************
 
 
          
@@ -279,195 +285,205 @@ krypton_net_server(){//*********************************************************
 
     public String build_html_file(){
 
-	String buffer = new String();
-	String html = new String("");
+    	network.website_hits++;
 
-            int test_db = 0;
-			while(network.database_in_use == 1){
+		String buffer = new String();
+		String html = new String("");
 
-    			System.out.println("Database in use...html");
-				try{Thread.sleep(1000);} catch (InterruptedException e){}
-				test_db++;
-				if(test_db > 20){break;}
+        int test_db = 0;
+		while(network.database_in_use == 1){
 
-    		}//*********************************
+    		System.out.println("Database in use...html");
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			test_db++;
+			if(test_db > 20){break;}
 
-
-    try{
-
-		if(get_list.contains("/item/")){
-
-			String search_for = new String("");
-			int xp = 0;
-			System.out.println("get_list " + get_list);
-
-			xp = get_list.indexOf("/item/");
-			search_for = get_list.substring(xp + 6, get_list.length());
-			System.out.println("search_for " + search_for);
-
-			xp = search_for.lastIndexOf(" HTTP");
-			try{search_for = search_for.substring(0, xp);}catch(Exception e){}
-			System.out.println("search_for " + search_for);
-
-			try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("html/item.html")));
-			//BufferedReader in = new BufferedReader(new FileReader("html/item.html"));
-			while ((buffer = in.readLine()) != null){html = html + buffer;}
-			in.close();
-			}catch(IOException e){e.printStackTrace();}
-
-			String[] load_token = new String[network.listing_size];
-
-			krypton_database_get_token tokenx = new krypton_database_get_token();
-			load_token = tokenx.get_token(search_for);
+    	}//*********************************
 
 
-			html = html.replace("<||ID00||>", load_token[0]);
-			html = html.replace("<||ID01||>", load_token[1]);
-			html = html.replace("<||ID02||>", load_token[2]);
-			html = html.replace("<||ID03||>", load_token[3]);
-			html = html.replace("<||ID04||>", load_token[4]);
-			html = html.replace("<||ID05||>", load_token[5]);
-			html = html.replace("<||ID06||>", load_token[6]);
-			html = html.replace("<||ID07||>", load_token[7]);
-			html = html.replace("<||ID08||>", load_token[8]);
-			html = html.replace("<||ID09||>", load_token[9]);		
-			html = html.replace("<||ID10||>", load_token[10]);
-			html = html.replace("<||ID11||>", load_token[11]);
-			html = html.replace("<||ID12||>", load_token[12]);
-			html = html.replace("<||ID13||>", load_token[13]);
-			html = html.replace("<||ID14||>", load_token[14]);
-			html = html.replace("<||ID15||>", load_token[15]);
-			html = html.replace("<||ID16||>", load_token[16]);
-			html = html.replace("<||ID17||>", load_token[17]);
-			html = html.replace("<||ID18||>", load_token[18]);
-			html = html.replace("<||ID19||>", load_token[19]);
-			html = html.replace("<||ID20||>", load_token[20]);
-			html = html.replace("<||ID21||>", load_token[21]);
-			html = html.replace("<||ID22||>", load_token[22]);
-			html = html.replace("<||ID23||>", load_token[23]);
-			html = html.replace("<||ID24||>", load_token[24]);
-			html = html.replace("<||ID25||>", load_token[25]);
-			html = html.replace("<||ID26||>", load_token[26]);
-			html = html.replace("<||ID27||>", load_token[27]);
-			html = html.replace("<||ID28||>", load_token[28]);
-			html = html.replace("<||ID29||>", load_token[29]);
-			html = html.replace("<||ID30||>", load_token[30]);
-			html = html.replace("<||ID31||>", load_token[31]);
-			html = html.replace("<||ID32||>", load_token[32]);
-			html = html.replace("<||ID33||>", load_token[33]);
-			html = html.replace("<||ID34||>", load_token[34]);
-			html = html.replace("<||ID35||>", load_token[35]);
-			html = html.replace("<||ID36||>", load_token[36]);
-			html = html.replace("<||ID37||>", load_token[37]);
-			html = html.replace("<||ID38||>", load_token[38]);
-			html = html.replace("<||ID39||>", load_token[39]);
-			html = html.replace("<||ID40||>", load_token[40]);
-			html = html.replace("<||ID41||>", load_token[41]);
-			html = html.replace("<||ID42||>", load_token[42]);
-			html = html.replace("<||ID43||>", load_token[43]);
-			html = html.replace("<||ID44||>", load_token[44]);
-			html = html.replace("<||ID45||>", load_token[45]);
-			html = html.replace("<||ID46||>", load_token[46]);
-			html = html.replace("<||ID47||>", load_token[47]);
-			html = html.replace("<||ID48||>", load_token[48]);
-			html = html.replace("<||ID49||>", load_token[49]);
-			html = html.replace("<||ID50||>", load_token[50]);
-			html = html.replace("<||ID51||>", load_token[51]);
-			html = html.replace("<||ID52||>", load_token[52]);
-			html = html.replace("<||ID53||>", load_token[53]);
-			html = html.replace("<||ID54||>", load_token[54]);
-			html = html.replace("<||ID55||>", load_token[55]);
-			html = html.replace("<||ID56||>", load_token[56]);
-			html = html.replace("<||ID57||>", load_token[57]);
-			html = html.replace("<||ID58||>", load_token[58]);
-			html = html.replace("<||ID59||>", load_token[59]);
-			html = html.replace("<||ID60||>", load_token[60]);
-			html = html.replace("<||ID61||>", load_token[61]);
-			html = html.replace("<||ID62||>", load_token[62]);
-			html = html.replace("<||ID63||>", load_token[63]);
-			html = html.replace("<||ID64||>", load_token[64]);
-			html = html.replace("<||ID65||>", load_token[65]);
-			html = html.replace("<||ID66||>", load_token[66]);
-			html = html.replace("<||ID67||>", load_token[67]);
-			html = html.replace("<||ID68||>", load_token[68]);
+	    try{
+
+			if(get_list.contains("/item/")){
+
+				String search_for = new String("");
+				int xp = 0;
+				System.out.println("get_list " + get_list);
+
+				xp = get_list.indexOf("/item/");
+				search_for = get_list.substring(xp + 6, get_list.length());
+				System.out.println("search_for " + search_for);
+
+				xp = search_for.lastIndexOf(" HTTP");
+				try{search_for = search_for.substring(0, xp);}catch(Exception e){}
+				System.out.println("search_for " + search_for);
+
+				try {
+
+					BufferedReader in = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("html/item.html")));
+					//BufferedReader in = new BufferedReader(new FileReader("html/item.html"));
+					while ((buffer = in.readLine()) != null){html = html + buffer;}
+					in.close();
+
+				}catch(IOException e){e.printStackTrace();}
+
+				String[] load_token = new String[network.listing_size];
+
+				krypton_database_get_token tokenx = new krypton_database_get_token();
+				load_token = tokenx.get_token(search_for);
 
 
-			//if template 0 only send description
-			if(load_token[7].equals("0")){html = load_token[19];}
+				html = html.replace("<||ID00||>", load_token[0]);
+				html = html.replace("<||ID01||>", load_token[1]);
+				html = html.replace("<||ID02||>", load_token[2]);
+				html = html.replace("<||ID03||>", load_token[3]);
+				html = html.replace("<||ID04||>", load_token[4]);
+				html = html.replace("<||ID05||>", load_token[5]);
+				html = html.replace("<||ID06||>", load_token[6]);
+				html = html.replace("<||ID07||>", load_token[7]);
+				html = html.replace("<||ID08||>", load_token[8]);
+				html = html.replace("<||ID09||>", load_token[9]);		
+				html = html.replace("<||ID10||>", load_token[10]);
+				html = html.replace("<||ID11||>", load_token[11]);
+				html = html.replace("<||ID12||>", load_token[12]);
+				html = html.replace("<||ID13||>", load_token[13]);
+				html = html.replace("<||ID14||>", load_token[14]);
+				html = html.replace("<||ID15||>", load_token[15]);
+				html = html.replace("<||ID16||>", load_token[16]);
+				html = html.replace("<||ID17||>", load_token[17]);
+				html = html.replace("<||ID18||>", load_token[18]);
+				html = html.replace("<||ID19||>", load_token[19]);
+				html = html.replace("<||ID20||>", load_token[20]);
+				html = html.replace("<||ID21||>", load_token[21]);
+				html = html.replace("<||ID22||>", load_token[22]);
+				html = html.replace("<||ID23||>", load_token[23]);
+				html = html.replace("<||ID24||>", load_token[24]);
+				html = html.replace("<||ID25||>", load_token[25]);
+				html = html.replace("<||ID26||>", load_token[26]);
+				html = html.replace("<||ID27||>", load_token[27]);
+				html = html.replace("<||ID28||>", load_token[28]);
+				html = html.replace("<||ID29||>", load_token[29]);
+				html = html.replace("<||ID30||>", load_token[30]);
+				html = html.replace("<||ID31||>", load_token[31]);
+				html = html.replace("<||ID32||>", load_token[32]);
+				html = html.replace("<||ID33||>", load_token[33]);
+				html = html.replace("<||ID34||>", load_token[34]);
+				html = html.replace("<||ID35||>", load_token[35]);
+				html = html.replace("<||ID36||>", load_token[36]);
+				html = html.replace("<||ID37||>", load_token[37]);
+				html = html.replace("<||ID38||>", load_token[38]);
+				html = html.replace("<||ID39||>", load_token[39]);
+				html = html.replace("<||ID40||>", load_token[40]);
+				html = html.replace("<||ID41||>", load_token[41]);
+				html = html.replace("<||ID42||>", load_token[42]);
+				html = html.replace("<||ID43||>", load_token[43]);
+				html = html.replace("<||ID44||>", load_token[44]);
+				html = html.replace("<||ID45||>", load_token[45]);
+				html = html.replace("<||ID46||>", load_token[46]);
+				html = html.replace("<||ID47||>", load_token[47]);
+				html = html.replace("<||ID48||>", load_token[48]);
+				html = html.replace("<||ID49||>", load_token[49]);
+				html = html.replace("<||ID50||>", load_token[50]);
+				html = html.replace("<||ID51||>", load_token[51]);
+				html = html.replace("<||ID52||>", load_token[52]);
+				html = html.replace("<||ID53||>", load_token[53]);
+				html = html.replace("<||ID54||>", load_token[54]);
+				html = html.replace("<||ID55||>", load_token[55]);
+				html = html.replace("<||ID56||>", load_token[56]);
+				html = html.replace("<||ID57||>", load_token[57]);
+				html = html.replace("<||ID58||>", load_token[58]);
+				html = html.replace("<||ID59||>", load_token[59]);
+				html = html.replace("<||ID60||>", load_token[60]);
+				html = html.replace("<||ID61||>", load_token[61]);
+				html = html.replace("<||ID62||>", load_token[62]);
+				html = html.replace("<||ID63||>", load_token[63]);
+				html = html.replace("<||ID64||>", load_token[64]);
+				html = html.replace("<||ID65||>", load_token[65]);
+				html = html.replace("<||ID66||>", load_token[66]);
+				html = html.replace("<||ID67||>", load_token[67]);
+				html = html.replace("<||ID68||>", load_token[68]);
 
 
-		}//if****************************
-		else if(get_list.contains("/search/")){
-
-			String search_for = new String("");
-			int xp = 0;
-			System.out.println("get_list " + get_list);
-
-			xp = get_list.indexOf("/search/?search=");
-			search_for = get_list.substring(xp + 16, get_list.length());
-			System.out.println("search_for " + search_for);
-
-			xp = search_for.lastIndexOf(" HTTP");
-			try{search_for = search_for.substring(0, xp);}catch(Exception e){}
-			search_for = search_for.replace("+"," ");
-			System.out.println("search_for " + search_for);
-
-			String[][] search_list;
-
-			krypton_database_search searchx = new krypton_database_search();
-			search_list = searchx.search(search_for);
-
-			try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("html/search.html")));
-			while ((buffer = in.readLine()) != null){html = html + buffer;}
-			in.close();
-			}catch(IOException e){e.printStackTrace();}
-
-			for (int loop = 0; loop < search_list[0].length; loop++){//************
-
-				if(search_list[0][loop].contains("-")){}
-				else{
-
-					html = html + "<br />";
-					html = html + "<br />";
-					html = html + "<a href='/item/" + search_list[0][loop] + "'>" + search_list[0][loop] + "</a> ";
-					html = html + "<a href='/item/" + search_list[0][loop] + "'>" + search_list[1][loop] + "</a>";
-					html = html + "<br />";
-					html = html + search_list[2][loop] + "";
-					html = html + search_list[3][loop] + "";
-					html = html + "&nbsp;&nbsp;&nbsp;&nbsp;Location Zip Code: " + search_list[4][loop] + "";
-					html = html + "<br />";
-
-				}//else
-
-			}//*****************************************************************
-
-			html = html + "</div>";
-			html = html + "</center>";
-			html = html + "</div>";
-			html = html + "</body>";
-			html = html + "</html>";
+				//if template 0 only send description
+				if(load_token[7].equals("0")){html = load_token[19];}
 
 
-		}//*******************************
-		else{
+			}//if****************************
+			else if(get_list.contains("/search/")){
 
-			try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("html/home.html")));
-			while ((buffer = in.readLine()) != null){html = html + buffer;}
-			in.close();
-			}catch(IOException e){e.printStackTrace();}
+				network.website_searches++;
 
-			html = html.replace("||<0>||", network.html_block_ql[37]);
-			html = html.replace("||<1>||", network.html_block_ql[19]);
-			html = html.replace("||<2>||", network.html_block_ql[41]);
+				String search_for = new String("");
+				int xp = 0;
+				System.out.println("get_list " + get_list);
 
-		}//else
+				xp = get_list.indexOf("/search/?search=");
+				search_for = get_list.substring(xp + 16, get_list.length());
+				System.out.println("search_for " + search_for);
 
-	}catch(Exception e){e.printStackTrace(); html = "error";}
+				xp = search_for.lastIndexOf(" HTTP");
+				try{search_for = search_for.substring(0, xp);}catch(Exception e){}
+				search_for = search_for.replace("+"," ");
+				System.out.println("search_for " + search_for);
 
-	return html;
+				String[][] search_list;
+
+				krypton_database_search searchx = new krypton_database_search();
+				search_list = searchx.search(search_for);
+
+				try {
+
+					BufferedReader in = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("html/search.html")));
+					while ((buffer = in.readLine()) != null){html = html + buffer;}
+					in.close();
+
+				}catch(IOException e){e.printStackTrace();}
+
+				for (int loop = 0; loop < search_list[0].length; loop++){//************
+
+					if(search_list[0][loop].contains("-")){}
+					else{
+
+						html = html + "<br />";
+						html = html + "<br />";
+						html = html + "<a href='/item/" + search_list[0][loop] + "'>" + search_list[0][loop] + "</a> ";
+						html = html + "<a href='/item/" + search_list[0][loop] + "'>" + search_list[1][loop] + "</a>";
+						html = html + "<br />";
+						html = html + search_list[2][loop] + "";
+						html = html + search_list[3][loop] + "";
+						html = html + "&nbsp;&nbsp;&nbsp;&nbsp;Location Zip Code: " + search_list[4][loop] + "";
+						html = html + "<br />";
+
+					}//else
+
+				}//*****************************************************************
+
+				html = html + "</div>";
+				html = html + "</center>";
+				html = html + "</div>";
+				html = html + "</body>";
+				html = html + "</html>";
+
+
+			}//*******************************
+			else{
+
+				try {
+
+					BufferedReader in = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("html/home.html")));
+					while ((buffer = in.readLine()) != null){html = html + buffer;}
+					in.close();
+
+				}catch(IOException e){e.printStackTrace();}
+
+				html = html.replace("||<0>||", network.html_block_ql[37]);
+				html = html.replace("||<1>||", network.html_block_ql[19]);
+				html = html.replace("||<2>||", network.html_block_ql[41]);
+
+			}//else
+
+		}catch(Exception e){e.printStackTrace(); html = "error";}
+
+		return html;
 
     }//status****************
 
@@ -482,90 +498,90 @@ krypton_net_server(){//*********************************************************
 
     public String add_block(String token){
 
-	String jsonarry = new String("");
+		String jsonarry = new String("");
 
 
-            int test_db = 0;
-			while(network.database_in_use == 1){
+        int test_db = 0;
+		while(network.database_in_use == 1){
 
-    			System.out.println("Database in use...addb");
-				try{Thread.sleep(1000);} catch (InterruptedException e){}
-				test_db++;
-				if(test_db > 20){break;}
+    		System.out.println("Database in use...addb");
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			test_db++;
+			if(test_db > 20){break;}
 
-    		}//*********************************
-
-
-	try{
-
-		//get the array
-
-		JSONParser parserx = new JSONParser();
-		Object objx = parserx.parse(token);
-		JSONObject jsonObjectx = (JSONObject) objx;
-  
+    	}//*********************************
 
 
-		String update_token[] = new String[network.listing_size];
-		String mining_token[] = new String[9];
+		try{
 
-    	for (int loop = 0; loop < network.listing_size; loop++){//************
+			//get the array
 
-			update_token[loop] = (String) jsonObjectx.get("l" + Integer.toString(loop));
-			System.out.println("convert " + update_token[loop]);
-
-		}//*******************************************************************
-
-    	for (int loop = 0; loop < mining_token.length; loop++){//************
-
-			mining_token[loop] = (String) jsonObjectx.get("m" + Integer.toString(loop));
-			System.out.println("convert " + update_token[loop]);
-
-		}//******************************************************************
+			JSONParser parserx = new JSONParser();
+			Object objx = parserx.parse(token);
+			JSONObject jsonObjectx = (JSONObject) objx;
+	  
 
 
+			String update_token[] = new String[network.listing_size];
+			String mining_token[] = new String[9];
 
-        //get the last token
-        krypton_database_get_token getxt = new krypton_database_get_token();
+	    	for (int loop = 0; loop < network.listing_size; loop++){//************
 
-        String req_id = update_token[0];
-        String old_token[] = new String[network.listing_size];
-        old_token = getxt.get_token(req_id);
+				update_token[loop] = (String) jsonObjectx.get("l" + Integer.toString(loop));
+				System.out.println("convert " + update_token[loop]);
 
-        //try to add the new token
-        krypton_update_new_block_remote remotex = new krypton_update_new_block_remote();
-		boolean test = remotex.update(update_token, mining_token, old_token);
+			}//*******************************************************************
 
-		krypton_database_load loadx = new krypton_database_load();
+	    	for (int loop = 0; loop < mining_token.length; loop++){//************
 
-		String yes_no = new String("0");
+				mining_token[loop] = (String) jsonObjectx.get("m" + Integer.toString(loop));
+				System.out.println("convert " + update_token[loop]);
 
-		if(test){
+			}//******************************************************************
 
-			yes_no = "1";
 
-			System.out.println("Send my new update to network.");
 
-			toolkit = Toolkit.getDefaultToolkit();
-			xtimerx = new Timer();
-			xtimerx.schedule(new RemindTask_server_updaten(update_token, mining_token, old_token), 0);
+	        //get the last token
+	        krypton_database_get_token getxt = new krypton_database_get_token();
 
-		}//******
-		else{yes_no = "0";}
+	        String req_id = update_token[0];
+	        String old_token[] = new String[network.listing_size];
+	        old_token = getxt.get_token(req_id);
 
-		JSONObject obj = new JSONObject();
-		obj.put("add_block", yes_no);
+	        //try to add the new token
+	        krypton_update_new_block_remote remotex = new krypton_update_new_block_remote();
+			boolean test = remotex.update(update_token, mining_token, old_token);
 
-		StringWriter out = new StringWriter();
-		obj.writeJSONString(out);
-		String jsonText = out.toString();
-		System.out.println(jsonText);
+			krypton_database_load loadx = new krypton_database_load();
 
-		jsonarry = JSONValue.toJSONString(obj);
+			String yes_no = new String("0");
 
-	}catch(Exception e){e.printStackTrace();}
+			if(test){
 
-	return jsonarry;
+				yes_no = "1";
+
+				System.out.println("Send my new update to network.");
+
+				toolkit = Toolkit.getDefaultToolkit();
+				xtimerx = new Timer();
+				xtimerx.schedule(new RemindTask_server_updaten(update_token, mining_token, old_token), 0);
+
+			}//******
+			else{yes_no = "0";}
+
+			JSONObject obj = new JSONObject();
+			obj.put("add_block", yes_no);
+
+			StringWriter out = new StringWriter();
+			obj.writeJSONString(out);
+			String jsonText = out.toString();
+			System.out.println(jsonText);
+
+			jsonarry = JSONValue.toJSONString(obj);
+
+		}catch(Exception e){e.printStackTrace();}
+
+		return jsonarry;
 
     }//status****************
 
@@ -577,32 +593,34 @@ krypton_net_server(){//*********************************************************
 
 
 	class RemindTask_server_updaten extends TimerTask{
-	Runtime rxrunti = Runtime.getRuntime();
 
-	String[] move_itemt;
-	String[] mining_itemt;
-	String[] old_tokent;
+		Runtime rxrunti = Runtime.getRuntime();
 
-	RemindTask_server_updaten(String[] move_itemx, String[] mining_itemx, String[] old_tokenx){
+		String[] move_itemt;
+		String[] mining_itemt;
+		String[] old_tokent;
 
-		move_itemt = move_itemx;
-		mining_itemt = mining_itemx;
-		old_tokent = old_tokenx;
+		RemindTask_server_updaten(String[] move_itemx, String[] mining_itemx, String[] old_tokenx){
 
-	}//****************************************************************************************
+			move_itemt = move_itemx;
+			mining_itemt = mining_itemx;
+			old_tokent = old_tokenx;
 
-	public void run(){//************************************************************************************
+		}//****************************************************************************************
 
-		System.out.println("Update all my peers with the new block.");
+		public void run(){//************************************************************************************
 
-		krypton_update_new_block_remote remotexu2 = new krypton_update_new_block_remote();
-		boolean test2 = remotexu2.update(move_itemt, mining_itemt, old_tokent);
+			System.out.println("Update all my peers with the new block.");
 
-		System.out.println("test2 " + test2);
+			krypton_update_new_block_remote remotexu2 = new krypton_update_new_block_remote();
+			boolean test2 = remotexu2.update(move_itemt, mining_itemt, old_tokent);
 
-		System.out.println("Update all my peers with the new block. Done...");
+			System.out.println("test2 " + test2);
 
-	}//runx*************************************************************************************************
+			System.out.println("Update all my peers with the new block. Done...");
+
+		}//runx*************************************************************************************************
+
     }//remindtask
 
 
@@ -615,93 +633,104 @@ krypton_net_server(){//*********************************************************
 
     public String add_task(String token){
 
-	String jsonarry = new String("");
+		String jsonarry = new String("");
 
 
-            int test_db = 0;
-			while(network.database_in_use == 1){
+        int test_db = 0;
+		while(network.database_in_use == 1){
 
-    			System.out.println("Database in use...addt");
-				try{Thread.sleep(1000);} catch (InterruptedException e){}
-				test_db++;
-				if(test_db > 20){break;}
+    		System.out.println("Database in use...addt");
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			test_db++;
+			if(test_db > 20){break;}
 
-    		}//*********************************
-
-
-	try{
+    	}//*********************************
 
 
-		//get the array
-
-		JSONParser parserx = new JSONParser();
-		Object objx = parserx.parse(token);
-		JSONObject jsonObjectx = (JSONObject) objx;
-  
+		try{
 
 
-		String update_token[] = new String[network.listing_size];
+			//get the array
 
-    	for (int loop = 0; loop < network.listing_size; loop++){//************
-
-			update_token[loop] = (String) jsonObjectx.get(Integer.toString(loop));
-			System.out.println("convert " + update_token[loop]);
-
-		}//*******************************************************************
+			JSONParser parserx = new JSONParser();
+			Object objx = parserx.parse(token);
+			JSONObject jsonObjectx = (JSONObject) objx;
+	  
 
 
+			String update_token[] = new String[network.listing_size];
 
-		//test for this item in the task list alreay
-		krypton_database_get_unconfirmed_test test_token = new krypton_database_get_unconfirmed_test();
-        String req_id1 = update_token[0];
-        int int_token = test_token.testx(req_id1);
+	    	for (int loop = 0; loop < network.listing_size; loop++){//************
 
-        if(int_token == 0){
+				update_token[loop] = (String) jsonObjectx.get(Integer.toString(loop));
+				System.out.println("convert " + update_token[loop]);
 
-        	//get the old token
-        	krypton_database_get_token getxt = new krypton_database_get_token();
+			}//*******************************************************************
 
-        	String req_id2 = update_token[0];
-        	String old_token[] = new String[network.listing_size];
-        	old_token = getxt.get_token(req_id2);
 
-       		//try to add the new token
-        	krypton_update_token_remote remotex = new krypton_update_token_remote();
-			boolean test = remotex.update(update_token, old_token);
 
-			String yes_no = new String("0");
+			//test for this item in the task list alreay
+			krypton_database_get_unconfirmed_test test_token = new krypton_database_get_unconfirmed_test();
+	        String req_id1 = update_token[0];
+	        int int_token = test_token.testx(req_id1);
 
-			if(test){yes_no = "1"; network.last_unconfirmed_idx = update_token[10];}
-			else{yes_no = "0";}
+	        if(int_token == 0){
 
-			JSONObject obj = new JSONObject();
-			obj.put("add_task", yes_no);
+	        	//get the old token
+	        	krypton_database_get_token getxt = new krypton_database_get_token();
 
-			StringWriter out = new StringWriter();
-			obj.writeJSONString(out);
-			String jsonText = out.toString();
-			System.out.println(jsonText);
+	        	String req_id2 = update_token[0];
+	        	String old_token[] = new String[network.listing_size];
+	        	old_token = getxt.get_token(req_id2);
 
-			jsonarry = JSONValue.toJSONString(obj);
+	       		//try to add the new token
+	        	krypton_update_token_remote remotex = new krypton_update_token_remote();
+				boolean test = remotex.update(update_token, old_token);
 
-		}//if**************
-		else{
+				String yes_no = new String("0");
 
-			JSONObject obj = new JSONObject();
-			obj.put("add_task", "0");
+				if(test){yes_no = "1"; network.last_unconfirmed_idx = update_token[10];}
+				else{yes_no = "0";}
 
-			StringWriter out = new StringWriter();
-			obj.writeJSONString(out);
-			String jsonText = out.toString();
-			System.out.println(jsonText);
 
-			jsonarry = JSONValue.toJSONString(obj);
+				//delete from the pending list
+				krypton_database_delete_buffer bufferd = new krypton_database_delete_buffer();
+				bufferd.delete(update_token[0]);
 
-		}//else
 
-	}catch(Exception e){e.printStackTrace();}
+				JSONObject obj = new JSONObject();
+				obj.put("add_task", yes_no);
 
-	return jsonarry;
+				StringWriter out = new StringWriter();
+				obj.writeJSONString(out);
+				String jsonText = out.toString();
+				System.out.println(jsonText);
+
+				jsonarry = JSONValue.toJSONString(obj);
+
+			}//if**************
+			else{
+
+				//delete from the pending list
+				krypton_database_delete_buffer bufferd = new krypton_database_delete_buffer();
+				bufferd.delete(update_token[0]);
+
+
+				JSONObject obj = new JSONObject();
+				obj.put("add_task", "0");
+
+				StringWriter out = new StringWriter();
+				obj.writeJSONString(out);
+				String jsonText = out.toString();
+				System.out.println(jsonText);
+
+				jsonarry = JSONValue.toJSONString(obj);
+
+			}//else
+
+		}catch(Exception e){e.printStackTrace();}
+
+		return jsonarry;
 
     }//status****************
 
@@ -720,66 +749,70 @@ krypton_net_server(){//*********************************************************
 
     public String get_block_id_nx(String idx){
 
-	String jsonarry = new String("");
+		String jsonarry = new String("");
 
-	try{
-
-
-		String[] token_array;
-
-		System.out.println("idx " + idx);
-		System.out.println("last_block_mining_idx " + network.last_block_mining_idx);
+		try{
 
 
+			String[] token_array;
 
-            int test_db = 0;
-			while(network.database_in_use == 1){
-
-    			System.out.println("Database in use...sl");
-				try{Thread.sleep(1000);} catch (InterruptedException e){}
-				test_db++;
-				if(test_db > 20){break;}
-
-    		}//*********************************
-
-
-		System.out.println("SLOW LOAD");
-		krypton_database_get_token_fmh fmh = new krypton_database_get_token_fmh();
-		token_array = fmh.get_token(idx);
+			System.out.println("idx " + idx);
+			System.out.println("last_block_mining_idx " + network.last_block_mining_idx);
 
 
 
-		JSONObject obj = new JSONObject();
-		int xxp1 = 0;
-		int xxp2 = 0;
-	
-		for (int loop = 0; loop < network.miningx_size; loop++){//*************
-			obj.put("m" + Integer.toString(xxp1), token_array[loop]);
-			System.out.println("m" + token_array[loop]);
-			xxp1++;
-		}//********************************************************************
+	            int test_db = 0;
+				while(network.database_in_use == 1){
 
-    	for (int loop = network.miningx_size; loop < token_array.length; loop++){//*************
-			obj.put("l" + Integer.toString(xxp2), token_array[loop]);
-			System.out.println("l" + token_array[loop]);
-			xxp2++;
-		}//*************************************************************************************
+	    			System.out.println("Database in use...sl");
+					try{Thread.sleep(1000);} catch (InterruptedException e){}
+					test_db++;
+					if(test_db > 20){break;}
 
-		//try{Thread.sleep(200000);} catch (InterruptedException e){}
+	    		}//*********************************
 
 
-		if(token_array[0].length() > 3){test_statex = true;}
+			System.out.println("SLOW LOAD");
+			krypton_database_get_token_fmh fmh = new krypton_database_get_token_fmh();
+			token_array = fmh.get_token(idx);
 
-		StringWriter out = new StringWriter();
-		obj.writeJSONString(out);
-		String jsonText = out.toString();
-		System.out.println(jsonText);
 
-		jsonarry = JSONValue.toJSONString(obj);
 
-	}catch(Exception e){e.printStackTrace();}
+			JSONObject obj = new JSONObject();
+			int xxp1 = 0;
+			int xxp2 = 0;
+		
+			for (int loop = 0; loop < network.miningx_size; loop++){//*************
+				
+				obj.put("m" + Integer.toString(xxp1), token_array[loop]);
+				System.out.println("m" + token_array[loop]);
+				xxp1++;
 
-	return jsonarry;
+			}//********************************************************************
+
+	    	for (int loop = network.miningx_size; loop < token_array.length; loop++){//*************
+
+				obj.put("l" + Integer.toString(xxp2), token_array[loop]);
+				System.out.println("l" + token_array[loop]);
+				xxp2++;
+
+			}//*************************************************************************************
+
+			//try{Thread.sleep(200000);} catch (InterruptedException e){}
+
+
+			if(token_array[0].length() > 3){test_statex = true;}
+
+			StringWriter out = new StringWriter();
+			obj.writeJSONString(out);
+			String jsonText = out.toString();
+			System.out.println(jsonText);
+
+			jsonarry = JSONValue.toJSONString(obj);
+
+		}catch(Exception e){e.printStackTrace();}
+
+		return jsonarry;
 
     }//status****************
 
@@ -796,90 +829,94 @@ krypton_net_server(){//*********************************************************
 
     public String get_blocks_x_id_nx(String idx){
 
-	String jsonarry = new String("");
+		String jsonarry = new String("");
 
-	try{
-
-
-		String[][] token_array;
-
-		System.out.println("idx " + idx);
-		System.out.println("last_block_mining_idx " + network.last_block_mining_idx);
-
-		//idx = "00002D476806AD5C56DEA0BB487E54AEA27FF60DEB1D2833010788B6C0C2C8F0";
+		try{
 
 
-            int test_db = 0;
-			while(network.database_in_use == 1){
+			String[][] token_array;
 
-    			System.out.println("Database in use...xx");
-				try{Thread.sleep(1000);} catch (InterruptedException e){}
-				test_db++;
-				if(test_db > 20){break;}
+			System.out.println("idx " + idx);
+			System.out.println("last_block_mining_idx " + network.last_block_mining_idx);
 
-    		}//*********************************
+			//idx = "00002D476806AD5C56DEA0BB487E54AEA27FF60DEB1D2833010788B6C0C2C8F0";
 
 
+	            int test_db = 0;
+				while(network.database_in_use == 1){
 
-		System.out.println("SLOW LOAD");
-		krypton_database_get_token_fmh_x fmhx = new krypton_database_get_token_fmh_x();
-		token_array = fmhx.get_tokens(idx, network.package_block_size);
+	    			System.out.println("Database in use...xx");
+					try{Thread.sleep(1000);} catch (InterruptedException e){}
+					test_db++;
+					if(test_db > 20){break;}
 
-		System.out.println("token_array[0].length " + token_array[0].length);
-
-		if(token_array[0].length != 0 && !token_array[0][0].equals("error")){
-
-			test_statex = true;
-
-			JSONObject obj1 = new JSONObject();
-    		for (int loop1 = 0; loop1 < token_array[0].length; loop1++){//************
-
-    		String jxsonarry = new String("");
-
-				JSONObject obj2 = new JSONObject();
-				int xxp1 = 0;
-				int xxp2 = 0;
-	
-					for (int loop = 0; loop < network.miningx_size; loop++){//*************
-						obj2.put("m" + Integer.toString(xxp1), token_array[loop][loop1]);
-						System.out.println("m" + token_array[loop][loop1]);
-						xxp1++;
-					}//********************************************************************
-
-    				for (int loop = network.miningx_size; loop < token_array.length; loop++){//*************
-						obj2.put("l" + Integer.toString(xxp2), token_array[loop][loop1]);
-						System.out.println("l" + token_array[loop][loop1]);
-						xxp2++;
-					}//*************************************************************************************
+	    		}//*********************************
 
 
-				StringWriter out = new StringWriter();
-				obj2.writeJSONString(out);
-				String jsonTextx = out.toString();
-				System.out.println(jsonTextx);
 
-				jxsonarry = JSONValue.toJSONString(obj2);
+			System.out.println("SLOW LOAD");
+			krypton_database_get_token_fmh_x fmhx = new krypton_database_get_token_fmh_x();
+			token_array = fmhx.get_tokens(idx, network.package_block_size);
 
-				obj1.put(Integer.toString(loop1), jxsonarry);
+			System.out.println("token_array[0].length " + token_array[0].length);
 
-			}//***********************************************************************
+			if(token_array[0].length != 0 && !token_array[0][0].equals("error")){
+
+				test_statex = true;
+
+				JSONObject obj1 = new JSONObject();
+	    		for (int loop1 = 0; loop1 < token_array[0].length; loop1++){//************
+
+	    		String jxsonarry = new String("");
+
+					JSONObject obj2 = new JSONObject();
+					int xxp1 = 0;
+					int xxp2 = 0;
+		
+						for (int loop = 0; loop < network.miningx_size; loop++){//*************
+
+							obj2.put("m" + Integer.toString(xxp1), token_array[loop][loop1]);
+							System.out.println("m" + token_array[loop][loop1]);
+							xxp1++;
+
+						}//********************************************************************
+
+	    				for (int loop = network.miningx_size; loop < token_array.length; loop++){//*************
+
+							obj2.put("l" + Integer.toString(xxp2), token_array[loop][loop1]);
+							System.out.println("l" + token_array[loop][loop1]);
+							xxp2++;
+
+						}//*************************************************************************************
 
 
-		StringWriter out1 = new StringWriter();
-		obj1.writeJSONString(out1);
-		String jsonText = out1.toString();
-		System.out.println(jsonText);
+					StringWriter out = new StringWriter();
+					obj2.writeJSONString(out);
+					String jsonTextx = out.toString();
+					System.out.println(jsonTextx);
 
-		jsonarry = JSONValue.toJSONString(obj1);
+					jxsonarry = JSONValue.toJSONString(obj2);
+
+					obj1.put(Integer.toString(loop1), jxsonarry);
+
+				}//***********************************************************************
 
 
-		}//if**********************************
-		else{test_statex = false;}
+			StringWriter out1 = new StringWriter();
+			obj1.writeJSONString(out1);
+			String jsonText = out1.toString();
+			System.out.println(jsonText);
+
+			jsonarry = JSONValue.toJSONString(obj1);
 
 
-	}catch(Exception e){e.printStackTrace();}
+			}//if**********************************
+			else{test_statex = false;}
 
-	return jsonarry;
+
+		}catch(Exception e){e.printStackTrace();}
+
+		return jsonarry;
 
     }//status****************
 
@@ -898,44 +935,44 @@ krypton_net_server(){//*********************************************************
 
     public String get_unconfirmed_id_nx(String idx){
 
-	String jsonarry = new String("");
+		String jsonarry = new String("");
 
-            int test_db = 0;
-			while(network.database_in_use == 1){
+        int test_db = 0;
+		while(network.database_in_use == 1){
 
-    			System.out.println("Database in use...unx");
-				try{Thread.sleep(1000);} catch (InterruptedException e){}
-				test_db++;
-				if(test_db > 20){break;}
+    		System.out.println("Database in use...unx");
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			test_db++;
+			if(test_db > 20){break;}
 
-    		}//*********************************
+    	}//*********************************
 
 
-	try{
+		try{
 
-		krypton_database_get_unconfirmed_fts fts = new krypton_database_get_unconfirmed_fts();
-		String[] token_array = fts.get_token(idx);
+			krypton_database_get_unconfirmed_fts fts = new krypton_database_get_unconfirmed_fts();
+			String[] token_array = fts.get_token(idx);
 
-		JSONObject obj = new JSONObject();
-    	for (int loop = 0; loop < token_array.length; loop++){//************
+			JSONObject obj = new JSONObject();
+	    	for (int loop = 0; loop < token_array.length; loop++){//************
 
-			obj.put(Integer.toString(loop), token_array[loop]);
-			System.out.println("BUILD " + token_array[loop]);
+				obj.put(Integer.toString(loop), token_array[loop]);
+				System.out.println("BUILD " + token_array[loop]);
 
-		}//*****************************************************************
+			}//*****************************************************************
 
-		if(token_array[0].length() > 3){test_statex = true;}
+			if(token_array[0].length() > 3){test_statex = true;}
 
-		StringWriter out = new StringWriter();
-		obj.writeJSONString(out);
-		String jsonText = out.toString();
-		System.out.println(jsonText);
+			StringWriter out = new StringWriter();
+			obj.writeJSONString(out);
+			String jsonText = out.toString();
+			System.out.println(jsonText);
 
-		jsonarry = JSONValue.toJSONString(obj);
+			jsonarry = JSONValue.toJSONString(obj);
 
-	}catch(Exception e){e.printStackTrace();}
+		}catch(Exception e){e.printStackTrace();}
 
-	return jsonarry;
+		return jsonarry;
 
     }//status****************
 
@@ -949,37 +986,37 @@ krypton_net_server(){//*********************************************************
 
     public String get_network_list(){
 
-            int test_db = 0;
-			while(network.database_in_use == 1){
+        int test_db = 0;
+		while(network.database_in_use == 1){
 
-    			System.out.println("Database in use...update_network_list");
-				try{Thread.sleep(1000);} catch (InterruptedException e){}
-				test_db++;
-				if(test_db > 20){break;}
+    		System.out.println("Database in use...update_network_list");
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			test_db++;
+			if(test_db > 20){break;}
 
-    		}//*********************************
+    	}//*********************************
 
 
-	String jsonarry = new String("");
-	LinkedList<String> list = new LinkedList<String>();
+		String jsonarry = new String("");
+		LinkedList<String> list = new LinkedList<String>();
 
-	int array_size = network.network_size;
+		int array_size = network.network_size;
 
-	if(array_size > 100){array_size = 100;}
+		if(array_size > 100){array_size = 100;}
 
-	try{
+		try{
 
-		for(int xloop = 0; xloop < array_size; xloop++){//****
+			for(int xloop = 0; xloop < array_size; xloop++){//****
 
-			list.add(network.network_list.get(xloop).toString()); 
+				list.add(network.network_list.get(xloop).toString()); 
 
-		}//for************************************************
+			}//for************************************************
 
-		jsonarry = JSONValue.toJSONString(list);
+			jsonarry = JSONValue.toJSONString(list);
 
-	}catch(Exception e){e.printStackTrace();}
+		}catch(Exception e){e.printStackTrace();}
 
-	return jsonarry;
+		return jsonarry;
 
     }//status****************
 
@@ -995,28 +1032,28 @@ krypton_net_server(){//*********************************************************
 
     public String get_status(){
 
-	String jsonarry = new String("");
+		String jsonarry = new String("");
 
-	try{
+		try{
 
-		JSONObject obj = new JSONObject();
-		obj.put("active","1");
-		obj.put("version", network.versionx);
-		obj.put("last_block_id", network.last_block_mining_idx);
-		obj.put("last_block_timestamp", network.last_block_timestamp);
-		obj.put("last_unconfirmed_id", network.last_unconfirmed_idx);
-		obj.put("node_list", Integer.toString(network.network_size));
+			JSONObject obj = new JSONObject();
+			obj.put("active","1");
+			obj.put("version", network.versionx);
+			obj.put("last_block_id", network.last_block_mining_idx);
+			obj.put("last_block_timestamp", network.last_block_timestamp);
+			obj.put("last_unconfirmed_id", network.last_unconfirmed_idx);
+			obj.put("node_list", Integer.toString(network.network_size));
 
-		StringWriter out = new StringWriter();
-		obj.writeJSONString(out);
-		String jsonText = out.toString();
-		System.out.println(jsonText);
+			StringWriter out = new StringWriter();
+			obj.writeJSONString(out);
+			String jsonText = out.toString();
+			System.out.println(jsonText);
 
-		jsonarry = JSONValue.toJSONString(obj);
+			jsonarry = JSONValue.toJSONString(obj);
 
-	}catch(Exception e){e.printStackTrace();}
+		}catch(Exception e){e.printStackTrace();}
 
-	return jsonarry;
+		return jsonarry;
 
     }//status****************
 
@@ -1039,7 +1076,7 @@ krypton_net_server(){//*********************************************************
 public void update_network_list(){
 
 
-krypton_database_save save = new krypton_database_save();
+	krypton_database_save save = new krypton_database_save();
 
 
 }//*******************************

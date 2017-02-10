@@ -44,12 +44,15 @@ startup(){//********************************************************************
 	    xtimerx = new Timer();
         xtimerx.schedule(new RemindTask_network(), 0);
 
-  }//if**********************
+    }//if**********************
 
 	//krypton network
 	toolkit = Toolkit.getDefaultToolkit();
 	xtimerx = new Timer();
 	xtimerx.schedule(new RemindTask_krypton(), 0);
+
+
+    try{Thread.sleep(5000);} catch (InterruptedException e){}
 
 	System.exit(0);
 

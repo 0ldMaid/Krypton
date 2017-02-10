@@ -33,7 +33,7 @@ import org.spongycastle.util.encoders.Base64;
 
 public class edit_seller_account extends JFrame implements ActionListener{//************************************************************************
 
-static String tokenx[] = new String[krypton.listing_size];
+static String tokenx[] = new String[network.listing_size];
 
 static int showid = 0;
 
@@ -97,15 +97,15 @@ edit_seller_account(){//****************************
 
 	get_id.setPreferredSize(new Dimension(105, 20));
 	get_id.setOpaque(true);
-	get_id.setBackground(krypton.jgray);//darkgray08
-	get_id.setForeground(krypton.blackx);//darkgray08
+	get_id.setBackground(network.jgray);//darkgray08
+	get_id.setForeground(Color.BLACK);//darkgray08
 	get_id.setToolTipText("Stop or Start mining");
 	get_id.addActionListener(this);
 
 
 
-	savex.setForeground(krypton.blackx);//darkgray08
-	savex.setBackground(krypton.jgray);//darkgray08
+	savex.setForeground(Color.BLACK);//darkgray08
+	savex.setBackground(network.jgray);//darkgray08
 	savex.addActionListener(this);
 
 
@@ -124,7 +124,7 @@ edit_seller_account(){//****************************
 
 	headerb1_l.setPreferredSize(new Dimension(355, 20));
 
-	headerb2_l.setFont(krypton.f_00);
+	headerb2_l.setFont(network.f_00);
 	headerb2_l.setVerticalAlignment(JLabel.TOP);
 	headerb2_l.setVerticalTextPosition(JLabel.TOP);
 	headerb2_l.setPreferredSize(new Dimension(355, 50));
@@ -134,32 +134,32 @@ edit_seller_account(){//****************************
 	headerb5_l.setPreferredSize(new Dimension(355, 10));
 	headerb6_l.setPreferredSize(new Dimension(255, 20));
 
-	System.out.println("base58_id " + krypton.base58_id);
+	System.out.println("base58_id " + network.base58_id);
 
 
 
-	headerb3_l.setFont(krypton.f_00);
+	headerb3_l.setFont(network.f_00);
 
 
 
-	name_first.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	name_last.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	address.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	address2.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	city.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	state.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	zip.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	country.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	btc_id.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	email.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	phone.setBorder(BorderFactory.createLineBorder(krypton.whitex));
-	website.setBorder(BorderFactory.createLineBorder(krypton.whitex));
+	name_first.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	name_last.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	address.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	address2.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	city.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	state.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	zip.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	country.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	btc_id.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	email.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	phone.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+	website.setBorder(BorderFactory.createLineBorder(Color.WHITE));
 
 
 
 	JPanel transferp = new JPanel();
 	transferp.setLayout(new FlowLayout());
-	transferp.setBackground(krypton.jgray);//darkgray08
+	transferp.setBackground(network.jgray);//darkgray08
 	transferp.setPreferredSize(new Dimension(400, 470));
 	transferp.add(headerb1_l);
 	transferp.add(headerb2_l);
@@ -183,7 +183,7 @@ edit_seller_account(){//****************************
 
 
 
-	krypton.build5.add(transferp);
+	network.build5.add(transferp);
 
 
 	show_info();
@@ -200,18 +200,18 @@ edit_seller_account(){//****************************
 
 		System.out.println("Show");
 
-		name_first.setText(krypton.settingsx[11]);
-		name_last.setText(krypton.settingsx[12]);
-		address.setText(krypton.settingsx[13]);
-		address2.setText(krypton.settingsx[14]);
-		city.setText(krypton.settingsx[15]);
-		state.setText(krypton.settingsx[16]);
-		zip.setText(krypton.settingsx[17]);
-		country.setText(krypton.settingsx[18]);
-		btc_id.setText(krypton.settingsx[19]);
-		email.setText(krypton.settingsx[20]);
-		phone.setText(krypton.settingsx[21]);
-		website.setText(krypton.settingsx[22]);
+		name_first.setText(network.settingsx[11]);
+		name_last.setText(network.settingsx[12]);
+		address.setText(network.settingsx[13]);
+		address2.setText(network.settingsx[14]);
+		city.setText(network.settingsx[15]);
+		state.setText(network.settingsx[16]);
+		zip.setText(network.settingsx[17]);
+		country.setText(network.settingsx[18]);
+		btc_id.setText(network.settingsx[19]);
+		email.setText(network.settingsx[20]);
+		phone.setText(network.settingsx[21]);
+		website.setText(network.settingsx[22]);
 
 	}//****************************
 
@@ -220,18 +220,18 @@ edit_seller_account(){//****************************
 
 		System.out.println("Save");
 
-		krypton.settingsx[11] = name_first.getText();
-		krypton.settingsx[12] = name_last.getText();
-		krypton.settingsx[13] = address.getText();
-		krypton.settingsx[14] = address2.getText();
-		krypton.settingsx[15] = city.getText();
-		krypton.settingsx[16] = state.getText();
-		krypton.settingsx[17] = zip.getText();
-		krypton.settingsx[18] = country.getText();
-		krypton.settingsx[19] = btc_id.getText();
-		krypton.settingsx[20] = email.getText();
-		krypton.settingsx[21] = phone.getText();
-		krypton.settingsx[22] = website.getText();
+		network.settingsx[11] = name_first.getText();
+		network.settingsx[12] = name_last.getText();
+		network.settingsx[13] = address.getText();
+		network.settingsx[14] = address2.getText();
+		network.settingsx[15] = city.getText();
+		network.settingsx[16] = state.getText();
+		network.settingsx[17] = zip.getText();
+		network.settingsx[18] = country.getText();
+		network.settingsx[19] = btc_id.getText();
+		network.settingsx[20] = email.getText();
+		network.settingsx[21] = phone.getText();
+		network.settingsx[22] = website.getText();
 
 		krypton_database_save savex = new krypton_database_save();
 

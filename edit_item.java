@@ -20,6 +20,11 @@ import java.security.Signature;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
+import java.awt.Toolkit;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.*;
+
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -39,9 +44,10 @@ import org.spongycastle.util.encoders.Base64;
 
 public class edit_item extends JFrame implements ActionListener{//************************************************************************
 
-static String tokenx[] = new String[krypton.listing_size];
+static String tokenx[] = new String[network.listing_size];
 
 static int showid = 0;
+static int showid2 = 0;
 
 Color bluex2 = new Color(0.2f, 0.27f, 0.39f);
 Color grayx1 = new Color(0.7f, 0.7f, 0.7f);
@@ -73,7 +79,7 @@ String cx2 = new String("");
 
 
 
-static JLabel token_id;
+static JTextField token_id;
 JLabel header1_l = new JLabel("currency", JLabel.RIGHT);
 JLabel header2_l = new JLabel("custom_template", JLabel.RIGHT);
 JLabel header3_l = new JLabel("custom_1", JLabel.RIGHT);
@@ -146,21 +152,21 @@ static JTextField picture_1 = new JTextField("", 28);
 static JTextField item_total_on_hand = new JTextField("", 8);
 
 
+Timer xtimerx;//class loop.
+Toolkit toolkit;
 
-
-
+String[] tokenx_buffer = new String[network.listing_size];
 
 JLabel header1_space = new JLabel("", JLabel.LEFT);
 JLabel header2_space = new JLabel("", JLabel.LEFT);
 JLabel header3_space = new JLabel("", JLabel.LEFT);
 
-
 //int what_item_save = lm.what_item;
-
 
 JButton update = new JButton("Update");
 
 static JButton back = new JButton("<<<");
+JButton load_id = new JButton("Load");
 static JButton next = new JButton(">>>");
 
 
@@ -340,7 +346,7 @@ edit_item(){//****************************
 
 	JPanel jpk2 = new JPanel();
 	jpk2.setPreferredSize(new Dimension(490, 620));
-	jpk2.setBackground(krypton.jblue);//darkgray08
+	jpk2.setBackground(network.jblue);//darkgray08
 	jpk2.add(header24_l);		jpk2.add(title);
 	jpk2.add(header23_l); 		jpk2.add(item_part_number);
 	jpk2.add(header32_l);		jpk2.add(picture_1);
@@ -385,7 +391,7 @@ edit_item(){//****************************
 
 	JPanel jpk2x = new JPanel();
 	jpk2x.setPreferredSize(new Dimension(490, 620));
-	jpk2x.setBackground(krypton.jblue);//darkgray08
+	jpk2x.setBackground(network.jblue);//darkgray08
 	jpk2x.add(jpk2);
 
 
@@ -402,29 +408,39 @@ edit_item(){//****************************
 
 	back.setPreferredSize(new Dimension(105, 20));
 	back.setOpaque(true);
-	back.setBackground(krypton.jblue);//darkgray08
+	back.setBackground(network.jblue);//darkgray08
 	back.setForeground(blackx);//darkgray08
 	back.setToolTipText("Previous Token");
 	back.addActionListener(this);
 
+	load_id.setPreferredSize(new Dimension(105, 20));
+	load_id.setOpaque(true);
+	load_id.setBackground(network.jblue);//darkgray08
+	load_id.setForeground(blackx);//darkgray08
+	load_id.setToolTipText("Load Token");
+	load_id.addActionListener(this);
+
 	next.setPreferredSize(new Dimension(105, 20));
 	next.setOpaque(true);
-	next.setBackground(krypton.jblue);//darkgray08
+	next.setBackground(network.jblue);//darkgray08
 	next.setForeground(blackx);//darkgray08
 	next.setToolTipText("Next Token");
 	next.addActionListener(this);
 
 
-	token_id = new JLabel("Token ID: 24999", JLabel.CENTER);
-	token_id.setPreferredSize(new Dimension(118, 20));
+	//token_id = new JLabel("Token ID: 24999", JLabel.CENTER);
+	//token_id.setPreferredSize(new Dimension(118, 20));
+
+	token_id = new JTextField("", 10);
+	token_id.setHorizontalAlignment(SwingConstants.RIGHT);
 
 	JLabel update_id = new JLabel("", JLabel.RIGHT);
-	update_id.setPreferredSize(new Dimension(200, 20));
+	update_id.setPreferredSize(new Dimension(100, 20));
 
 
 	update.setPreferredSize(new Dimension(105, 20));
 	update.setOpaque(true);
-	update.setBackground(krypton.jblue);//darkgray08
+	update.setBackground(network.jblue);//darkgray08
 	update.setForeground(blackx);//darkgray08
 	update.setToolTipText("Update token information");
 	update.addActionListener(this);
@@ -436,16 +452,17 @@ edit_item(){//****************************
 
 	JPanel jpk3 = new JPanel();
 	jpk3.setPreferredSize(new Dimension(690, 30));
-	jpk3.setBackground(krypton.jblue);//darkgray08
+	jpk3.setBackground(network.jblue);//darkgray08
 	jpk3.add(back);
 	jpk3.add(token_id);
+	jpk3.add(load_id);
 	jpk3.add(next);
 	jpk3.add(update_id);
 	jpk3.add(update);
 
 
-	krypton.build2.add(jpk3);
-	krypton.build2.add(scrollPaned_item);
+	network.build2.add(jpk3);
+	network.build2.add(scrollPaned_item);
 
 
 	show_token();
@@ -467,64 +484,21 @@ edit_item(){//****************************
 
 	public static String[] get_token(String x){
 
-
-		String[] token1 = new String[krypton.listing_size];
+		String[] token1 = new String[network.listing_size];
 
 		String jsonText = new String("");
 
+		while(network.database_in_use == 1){
 
-		try{
+			int test_db = 0;
+    		System.out.println("Database in use... get_token edit");
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			test_db++;
 
-			JSONObject obj = new JSONObject();
-			obj.put("request", "get_token");
-			obj.put("item_id", x);
-			obj.put("password", "1234");
+    	}//*********************************
 
-			StringWriter out = new StringWriter();
-			obj.writeJSONString(out);
-			jsonText = out.toString();
-			System.out.println(jsonText);
-
-		}catch(Exception e){System.out.println("JSON ERROR");}
-
-
-
-		String sentence;   
-		String modifiedSentence = new String();   
-
-		try{
-
-			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
-			System.out.println(">>> " + "localhost" + " " + "55556");
-			Socket clientSocket = new Socket("127.0.0.1", 55556);   
-			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
-			sentence = jsonText;  
-			outToServer.writeBytes(sentence + '\n');   
-			modifiedSentence = inFromServer.readLine();   
-			System.out.println("FROM SERVER: " + modifiedSentence);
-			clientSocket.close();
-
-
-			JSONParser parserx = new JSONParser();
-			Object objx = parserx.parse(modifiedSentence);
-			JSONObject jsonObjectx = (JSONObject) objx;
-
-				String item_xf = (String) jsonObjectx.get("message");
-
-				Object objx2 = parserx.parse(item_xf);
-				JSONObject jsonObjectx2 = (JSONObject) objx2;
-
-				for(int loop = 0; loop < krypton.listing_size; loop++){//************
-
-					System.out.println("GET " + krypton.item_layout[loop]);
-					token1[loop] = (String) jsonObjectx2.get(krypton.item_layout[loop]);
-
-				}//******************************************************************
-
-
-		}catch(Exception e){e.printStackTrace(); System.out.println("API SERVER OFFLINE!"); modifiedSentence = "API SERVER OFFLINE!";}
-
+		krypton_database_get_token tokenx = new krypton_database_get_token();
+		token1 = tokenx.get_token(x);
 
 		return token1;
 
@@ -546,20 +520,20 @@ edit_item(){//****************************
 		if(showid <= 0){back.setEnabled(false);}
 		else{back.setEnabled(true);}
 
-		if(showid >= (krypton.my_listings.size() -1)){next.setEnabled(false);}
+		if(showid >= (network.my_listings.size() -1)){next.setEnabled(false);}
 		else{next.setEnabled(true);}
 
 		System.out.println("showid " + showid);
-		System.out.println("krypton.my_listings.size() " + krypton.my_listings.size());
+		System.out.println("network.my_listings.size() " + network.my_listings.size());
 
 
 
 
-		if(showid > -1 && showid < krypton.my_listings.size()){
+		if(showid > -1 && showid < network.my_listings.size()){
 
-			String req_id = krypton.my_listings.get(showid).toString();
+			String req_id = network.my_listings.get(showid).toString();
 
-			token_id.setText("Token ID: " + req_id);
+			token_id.setText(req_id);
 
 
 			//get the token
@@ -680,6 +654,174 @@ edit_item(){//****************************
 
 
 
+    public void load_yes(){
+
+		String req_id = new String("");
+
+
+    	try{
+
+			showid2 = Integer.parseInt(token_id.getText()); 
+
+		}catch(Exception e){showid2 = 100000;}
+
+
+		if(showid2 > 99999 && showid2 < 125001){
+
+
+			req_id = Integer.toString(showid2);
+
+			network.my_listings.get(showid).toString();
+
+
+			for (int loop = 0; loop < network.my_listings.size(); loop++){
+
+				if(req_id.equals(network.my_listings.get(loop).toString())){
+
+					showid = loop;
+
+					if(showid <= 0){back.setEnabled(false);}
+					else{back.setEnabled(true);}
+
+					if(showid >= (network.my_listings.size() -1)){next.setEnabled(false);}
+					else{next.setEnabled(true);}
+
+				}//if
+
+			}//for********************************************************
+
+
+			
+
+			token_id.setText(req_id);
+
+			//get the token
+			tokenx = get_token(req_id);
+
+
+			currency.setEditable(true);
+			custom_template.setEditable(true);
+			custom_1.setEditable(true);
+			custom_2.setEditable(true);
+			custom_3.setEditable(true);
+			item_errors.setEditable(true);
+			item_date_listed.setEditable(true);
+			item_date_listed_day.setEditable(true);
+			item_date_listed_int.setEditable(true);
+			hits.setEditable(true);
+			item_confirm_code.setEditable(true);
+			item_confirmed.setEditable(true);
+			cost.setEditable(true);
+			item_description.setEditable(true);
+			//item_id.setEditable(true);
+			sale_price.setEditable(true);
+			weight.setEditable(true);
+			item_listing_id.setEditable(true);
+			item_notes.setEditable(true);
+			item_package_d.setEditable(true);
+			item_package_l.setEditable(true);
+			item_package_w.setEditable(true);
+			item_part_number.setEditable(true);
+			title.setEditable(true);
+			item_title_url.setEditable(false);
+			item_type.setEditable(true);
+			item_search_1.setEditable(true);
+			item_search_2.setEditable(true);
+			item_search_3.setEditable(true);
+			//item_seller_id.setEditable(true);
+			item_site_url.setEditable(true);
+			picture_1.setEditable(true);
+			item_total_on_hand.setEditable(true);
+
+			currency.setText(tokenx[6]);
+			custom_template.setText(tokenx[7]);
+			custom_1.setText(tokenx[8]);
+			custom_2.setText(tokenx[9]);
+			custom_3.setText(tokenx[10]);
+			item_errors.setText(tokenx[11]);
+			item_date_listed.setText(tokenx[12]);
+			item_date_listed_day.setText(tokenx[13]);
+			item_date_listed_int.setText(tokenx[14]);
+			hits.setText(tokenx[15]);
+			item_confirm_code.setText(tokenx[16]);
+			item_confirmed.setText(tokenx[17]);
+			cost.setText(tokenx[18]);
+			item_description.setText(tokenx[19]);
+			item_id.setText(tokenx[0]);
+			sale_price.setText(tokenx[21]);
+			weight.setText(tokenx[22]);
+			item_listing_id.setText(tokenx[30]);
+			item_notes.setText(tokenx[24]);
+			item_package_d.setText(tokenx[25]);
+			item_package_l.setText(tokenx[26]);
+			item_package_w.setText(tokenx[27]);
+			item_part_number.setText(tokenx[28]);
+			title.setText(tokenx[29]);
+			item_title_url.setText(tokenx[30]);
+			item_type.setText(tokenx[31]);
+			item_search_1.setText(tokenx[32]);
+			item_search_2.setText(tokenx[33]);
+			item_search_3.setText(tokenx[34]);
+			item_seller_id.setText(tokenx[60]);
+			item_site_url.setText(tokenx[36]);
+			picture_1.setText(tokenx[37]);
+			item_total_on_hand.setText(tokenx[38]);
+
+		}//if
+		else{
+
+			currency.setEditable(false);
+			custom_template.setEditable(false);
+			custom_1.setEditable(false);
+			custom_2.setEditable(false);
+			custom_3.setEditable(false);
+			item_errors.setEditable(false);
+			item_date_listed.setEditable(false);
+			item_date_listed_day.setEditable(false);
+			item_date_listed_int.setEditable(false);
+			hits.setEditable(false);
+			item_confirm_code.setEditable(false);
+			item_confirmed.setEditable(false);
+			cost.setEditable(false);
+			item_description.setEditable(false);
+			item_id.setEditable(false);
+			sale_price.setEditable(false);
+			weight.setEditable(false);
+			item_listing_id.setEditable(false);
+			item_notes.setEditable(false);
+			item_package_d.setEditable(false);
+			item_package_l.setEditable(false);
+			item_package_w.setEditable(false);
+			item_part_number.setEditable(false);
+			title.setEditable(false);
+			item_title_url.setEditable(false);
+			item_type.setEditable(false);
+			item_search_1.setEditable(false);
+			item_search_2.setEditable(false);
+			item_search_3.setEditable(false);
+			item_seller_id.setEditable(false);
+			item_site_url.setEditable(false);
+			picture_1.setEditable(false);
+			item_total_on_hand.setEditable(false);
+
+		}//**
+
+
+
+    }//*******************
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	public void update_yes(){
@@ -702,12 +844,12 @@ edit_item(){//****************************
 
 	public void updatet(){
 
-	System.out.println("Update");
+		System.out.println("Update");
 
         //update the noose
 		tokenx[3] = Long.toString( System.currentTimeMillis() );
 
-		tokenx[4] = krypton.settingsx[5];
+		tokenx[4] = network.settingsx[5];
 
 		tokenx[6] = currency.getText();
 		tokenx[7] = custom_template.getText();
@@ -749,31 +891,32 @@ edit_item(){//****************************
 		tokenx[30] = tokenx[29].toLowerCase();
 
 		//base 58
-		tokenx[60] = krypton.base58_id;
+		tokenx[60] = network.base58_id;
 
 
 		//seller info
-		tokenx[63] = krypton.settingsx[11];//name
-		tokenx[64] = krypton.settingsx[12];//last
-		tokenx[54] = krypton.settingsx[13];//address
-		tokenx[55] = krypton.settingsx[14];//address2
-		tokenx[56] = krypton.settingsx[15];//city
-		tokenx[57] = krypton.settingsx[16];//state
-		tokenx[58] = krypton.settingsx[17];//zip
-		tokenx[59] = krypton.settingsx[18];//country
+		tokenx[63] = network.settingsx[11];//name
+		tokenx[64] = network.settingsx[12];//last
+		tokenx[54] = network.settingsx[13];//address
+		tokenx[55] = network.settingsx[14];//address2
+		tokenx[56] = network.settingsx[15];//city
+		tokenx[57] = network.settingsx[16];//state
+		tokenx[58] = network.settingsx[17];//zip
+		tokenx[59] = network.settingsx[18];//country
 
-		tokenx[39] = krypton.settingsx[19];//btc
-		tokenx[62] = krypton.settingsx[20];//email
-		tokenx[66] = krypton.settingsx[21];//phone
-		tokenx[68] = krypton.settingsx[22];//website
+		tokenx[39] = network.settingsx[19];//btc
+		tokenx[62] = network.settingsx[20];//email
+		tokenx[66] = network.settingsx[21];//phone
+		tokenx[68] = network.settingsx[22];//website
 
+		tokenx[65] = "";//seller note
 
 		//sign
 
 		try{
 
 
-				krypton_trim trimx = new krypton_trim();
+				network_trim trimx = new network_trim();
                 tokenx = trimx.trim(tokenx);
 
 
@@ -798,7 +941,7 @@ edit_item(){//****************************
 
                 byte[] message = Base64.toBase64String(sha256_1x).getBytes("UTF8");
 
-	    		byte[] clear = Base64.decode(krypton.settingsx[4]);
+	    		byte[] clear = Base64.decode(network.settingsx[4]);
     			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
     			KeyFactory fact = KeyFactory.getInstance("RSA");
     			PrivateKey priv = fact.generatePrivate(keySpec);
@@ -818,8 +961,8 @@ edit_item(){//****************************
 
 
 
-                byte[] keyxb3 = Base64.decode(krypton.settingsx[5]);
-                System.out.println("settingsx[5] " + krypton.settingsx[5]);
+                byte[] keyxb3 = Base64.decode(network.settingsx[5]);
+                System.out.println("settingsx[5] " + network.settingsx[5]);
 
                 X509EncodedKeySpec keySpecx3 = new X509EncodedKeySpec(keyxb3);
                 KeyFactory factx3 = KeyFactory.getInstance("RSA");
@@ -840,8 +983,15 @@ edit_item(){//****************************
 				
 
 
-                update_send(tokenx);
+                //update_send(tokenx);
+                //send the update
+	            tokenx_buffer = tokenx;
+				toolkit = Toolkit.getDefaultToolkit();
+				xtimerx = new Timer();
+				xtimerx.schedule(new RemindTask_send_update(), 0);
+	            //send the update
 
+	            network.icon.displayMessage("Krypton", "Token updated ID (" + tokenx[0] + ")", TrayIcon.MessageType.INFO);
 
 
 		}catch(Exception e){e.printStackTrace();}
@@ -857,71 +1007,22 @@ edit_item(){//****************************
 
 
 
-	public void update_send(String[] token){
-
-
-		String[] token1 = new String[krypton.listing_size];
-
-		String jsonText = new String("");
-
-
-		try{
-
-			JSONObject obj2 = new JSONObject();
-
-			for (int loop = 0; loop < tokenx.length; loop++){
-
-				obj2.put(krypton.item_layout[loop], tokenx[loop]);
-
-			}//**********************************************
-
-			StringWriter out2 = new StringWriter();
-			obj2.writeJSONString(out2);
-			String jsonText2 = out2.toString();
-			System.out.println(jsonText2);
-
-			JSONObject obj = new JSONObject();
-			obj.put("request", "set_edit_block");
-			obj.put("password", "1234");
-			obj.put("item_array", jsonText2);
-
-			StringWriter out = new StringWriter();
-			obj.writeJSONString(out);
-			jsonText = out.toString();
-			System.out.println(jsonText);
-
-		}catch(Exception e){System.out.println("JSON ERROR");}
 
 
 
-		String sentence;   
-		String modifiedSentence = new String();   
 
-		try{
+	class RemindTask_send_update extends TimerTask{
+	Runtime rxrunti = Runtime.getRuntime();
 
-			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
-			System.out.println(">>> " + "localhost" + " " + "55556");
-			Socket clientSocket = new Socket("127.0.0.1", 55556);   
-			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
-			sentence = jsonText;  
-			outToServer.writeBytes(sentence + '\n');   
-			modifiedSentence = inFromServer.readLine();   
-			System.out.println("FROM SERVER: " + modifiedSentence);
-			clientSocket.close();
+	public void run(){//************************************************************************************
 
+		krypton_update_token update = new krypton_update_token(tokenx_buffer);
+        //krypton_net_client.send_unconfirmed_update(tokenx_buffer);
+		krypton_database_load load = new krypton_database_load();
 
-			JSONParser parserx = new JSONParser();
-			Object objx = parserx.parse(modifiedSentence);
-			JSONObject jsonObjectx = (JSONObject) objx;
+	}//runx***************************************************************************************************
+    }//remindtask
 
-			String item_xf = (String) jsonObjectx.get("message");
-
-		}catch(Exception e){e.printStackTrace(); System.out.println("API SERVER OFFLINE!"); modifiedSentence = "API SERVER OFFLINE!";}
-
-
-
-	}//*************************************
 
 
 
@@ -935,8 +1036,7 @@ public void actionPerformed(ActionEvent event){
 	if(event.getSource() == back)             {showid--; show_token();}
 	if(event.getSource() == next)             {showid++; show_token();}
 	if(event.getSource() == update)           {update_yes();}
-
-
+	if(event.getSource() == load_id)          {load_yes();}
 
 }//********************************************
 

@@ -55,7 +55,7 @@ import javax.swing.text.html.StyleSheet;
 
 public class edit_view_item extends JFrame implements ActionListener{//************************************************************************
 
-static String tokenx[] = new String[krypton.listing_size];
+static String tokenx[] = new String[network.listing_size];
 
 static int showid = 0;
 
@@ -196,8 +196,8 @@ edit_view_item(){//****************************
 
 	currency.setText("BTC");
 	currency.setPreferredSize(new Dimension(300, 30));
-	currency.setFont(krypton.f_02);
-	currency.setForeground(krypton.blackx);
+	currency.setFont(network.f_02);
+	currency.setForeground(network.blackx);
 
 	custom_template.setText("");
 	custom_template.setBorder(BorderFactory.createLineBorder(whitex));
@@ -244,12 +244,12 @@ edit_view_item(){//****************************
 
 	sale_price.setText("Price");
 	sale_price.setPreferredSize(new Dimension(430, 20));
-	sale_price.setFont(krypton.f_02);
-	sale_price.setForeground(krypton.blackx);
+	sale_price.setFont(network.f_02);
+	sale_price.setForeground(network.blackx);
 
 	weight.setText("Weight Kg");
 	weight.setPreferredSize(new Dimension(430, 20));
-	weight.setForeground(krypton.blackx);
+	weight.setForeground(network.blackx);
 
 	item_listing_id.setText("");
 	item_listing_id.setPreferredSize(new Dimension(430, 20));
@@ -259,16 +259,16 @@ edit_view_item(){//****************************
 
 	item_package_dlw.setText("");
 	item_package_dlw.setPreferredSize(new Dimension(430, 20));
-	item_package_dlw.setForeground(krypton.blackx);
+	item_package_dlw.setForeground(network.blackx);
 
 	item_part_number.setText("Part number");
 	item_part_number.setPreferredSize(new Dimension(430, 20));
-	item_part_number.setForeground(krypton.blackx);
+	item_part_number.setForeground(network.blackx);
 
 	title.setText("Title");
 	title.setPreferredSize(new Dimension(430, 30));
-	title.setFont(krypton.f_02);
-	title.setForeground(krypton.blackx);
+	title.setFont(network.f_02);
+	title.setForeground(network.blackx);
 
 	item_type.setText("");
 	item_type.setBorder(BorderFactory.createLineBorder(whitex));
@@ -289,30 +289,30 @@ edit_view_item(){//****************************
 	picture_1.setBorder(BorderFactory.createLineBorder(whitex));
 
 	item_seller_notes.setPreferredSize(new Dimension(630, 15));
-	item_seller_notes.setForeground(krypton.blackx);
+	item_seller_notes.setForeground(network.blackx);
 
 	item_seller_id.setPreferredSize(new Dimension(630, 15));
-	item_seller_id.setForeground(krypton.blackx);
+	item_seller_id.setForeground(network.blackx);
 
 	item_seller_email.setPreferredSize(new Dimension(630, 15));
-	item_seller_email.setForeground(krypton.blackx);
+	item_seller_email.setForeground(network.blackx);
 
 	item_seller_url.setPreferredSize(new Dimension(630, 15));
-	item_seller_url.setForeground(krypton.blackx);
+	item_seller_url.setForeground(network.blackx);
 
 	item_seller_location.setPreferredSize(new Dimension(630, 15));
-	item_seller_location.setForeground(krypton.blackx);
+	item_seller_location.setForeground(network.blackx);
 
 	item_seller_name.setPreferredSize(new Dimension(630, 15));
-	item_seller_name.setForeground(krypton.blackx);
+	item_seller_name.setForeground(network.blackx);
 
 	item_seller_phone.setPreferredSize(new Dimension(630, 15));
-	item_seller_phone.setForeground(krypton.blackx);
+	item_seller_phone.setForeground(network.blackx);
 
 
 	item_verify.setPreferredSize(new Dimension(100, 20));
-	item_verify.setForeground(krypton.blackx);
-	item_verify.setIcon(krypton.imx0);
+	item_verify.setForeground(network.blackx);
+	item_verify.setIcon(network.imx0);
 	item_verify.setHorizontalTextPosition(SwingConstants.LEFT);
 	item_verify.setToolTipText("Does the info in this token match its public key?");
 
@@ -324,7 +324,7 @@ edit_view_item(){//****************************
 
 	item_total_on_hand.setText("");
 	item_total_on_hand.setPreferredSize(new Dimension(430, 30));
-	item_total_on_hand.setForeground(krypton.blackx);
+	item_total_on_hand.setForeground(network.blackx);
 
 
 
@@ -345,14 +345,14 @@ edit_view_item(){//****************************
 
 	back.setPreferredSize(new Dimension(105, 20));
 	back.setOpaque(true);
-	back.setBackground(krypton.jblue);//darkgray08
+	back.setBackground(network.jblue);//darkgray08
 	back.setForeground(blackx);//darkgray08
 	back.setToolTipText("Previous Token");
 	back.addActionListener(this);
 
 	next.setPreferredSize(new Dimension(105, 20));
 	next.setOpaque(true);
-	next.setBackground(krypton.jblue);//darkgray08
+	next.setBackground(network.jblue);//darkgray08
 	next.setForeground(blackx);//darkgray08
 	next.setToolTipText("Next Token");
 	next.addActionListener(this);
@@ -360,12 +360,15 @@ edit_view_item(){//****************************
 
 	token_id = new JLabel("Viewing token ID: ", JLabel.CENTER);
 	token_id.setPreferredSize(new Dimension(118, 20));
+
+	show_idx.setHorizontalAlignment(SwingConstants.RIGHT);
+
 	JLabel update_id = new JLabel("", JLabel.RIGHT);
 	update_id.setPreferredSize(new Dimension(200, 20));
 
 	item_picture.setPreferredSize(new Dimension(200, 200));
 	item_picture.setBorderPainted(false);
-	item_picture.setBackground(krypton.whitex);//darkgray08
+	item_picture.setBackground(network.whitex);//darkgray08
 	item_picture.addActionListener(this);
 
 	Icon aicon = new ImageIcon(no_image);
@@ -375,7 +378,7 @@ edit_view_item(){//****************************
 
 	update.setPreferredSize(new Dimension(105, 20));
 	update.setOpaque(true);
-	update.setBackground(krypton.jblue);//darkgray08
+	update.setBackground(network.jblue);//darkgray08
 	update.setForeground(blackx);//darkgray08
 	update.setToolTipText("View token information");
 	update.addActionListener(this);
@@ -386,7 +389,7 @@ edit_view_item(){//****************************
 
 	JPanel jpk2 = new JPanel();
 	jpk2.setPreferredSize(new Dimension(445, 200));
-	jpk2.setBackground(krypton.jblue);//darkgray08
+	jpk2.setBackground(network.jblue);//darkgray08
 	jpk2.add(title);
 	jpk2.add(sale_price);
 	jpk2.add(header1_space);
@@ -397,7 +400,7 @@ edit_view_item(){//****************************
 
 	JPanel jpk2b = new JPanel();
 	jpk2b.setPreferredSize(new Dimension(650, 196));
-	jpk2b.setBackground(krypton.whitex);//darkgray08
+	jpk2b.setBackground(network.whitex);//darkgray08
 	jpk2b.add(header2_space);
 	jpk2b.add(item_seller_name);
 	jpk2b.add(item_seller_notes);
@@ -442,7 +445,7 @@ edit_view_item(){//****************************
 
 	jpk2x = new JPanel();
 	jpk2x.setPreferredSize(new Dimension(490, 950));
-	jpk2x.setBackground(krypton.jblue);//darkgray08
+	jpk2x.setBackground(network.jblue);//darkgray08
 	jpk2x.add(item_picture);        jpk2x.add(jpk2);
 	jpk2x.add(scrollPane); 
 	jpk2x.add(jpk2b);
@@ -462,7 +465,7 @@ edit_view_item(){//****************************
 
 	JPanel jpk3 = new JPanel();
 	jpk3.setPreferredSize(new Dimension(690, 30));
-	jpk3.setBackground(krypton.jblue);//darkgray08
+	jpk3.setBackground(network.jblue);//darkgray08
 	jpk3.add(back);
 	jpk3.add(token_id);
 	jpk3.add(show_idx);
@@ -471,8 +474,8 @@ edit_view_item(){//****************************
 	jpk3.add(item_verify);
 
 
-	krypton.build4.add(jpk3);
-	krypton.build4.add(scrollPaned_item);
+	network.build4.add(jpk3);
+	network.build4.add(scrollPaned_item);
 
 
 	showid = 100000;
@@ -485,75 +488,29 @@ edit_view_item(){//****************************
 
 
 
-
-
-
-
 	public static String[] get_token(String x){
 
-		String[] token1 = new String[krypton.listing_size];
+		String[] token1 = new String[network.listing_size];
 
 		String jsonText = new String("");
 
 
-		try{
+		while(network.database_in_use == 1){
 
-			JSONObject obj = new JSONObject();
-			obj.put("request", "get_token");
-			obj.put("item_id", x);
-			obj.put("password", "1234");
+			int test_db = 0;
+    		System.out.println("Database in use... get_token view item");
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			test_db++;
 
-			StringWriter out = new StringWriter();
-			obj.writeJSONString(out);
-			jsonText = out.toString();
-			System.out.println(jsonText);
-
-		}catch(Exception e){System.out.println("JSON ERROR");}
+    	}//*********************************
 
 
-
-		String sentence;   
-		String modifiedSentence = new String();   
-
-		try{
-
-			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
-			System.out.println(">>> " + "localhost" + " " + "55556");
-			Socket clientSocket = new Socket("127.0.0.1", 55556);   
-			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
-			sentence = jsonText;  
-			outToServer.writeBytes(sentence + '\n');   
-			modifiedSentence = inFromServer.readLine();   
-			System.out.println("FROM SERVER: " + modifiedSentence);
-			clientSocket.close();
-
-
-			JSONParser parserx = new JSONParser();
-			Object objx = parserx.parse(modifiedSentence);
-			JSONObject jsonObjectx = (JSONObject) objx;
-
-				String item_xf = (String) jsonObjectx.get("message");
-
-				Object objx2 = parserx.parse(item_xf);
-				JSONObject jsonObjectx2 = (JSONObject) objx2;
-
-				for(int loop = 0; loop < krypton.listing_size; loop++){//************
-
-					System.out.println("GET " + krypton.item_layout[loop]);
-					token1[loop] = (String) jsonObjectx2.get(krypton.item_layout[loop]);
-
-				}//******************************************************************
-
-
-		}catch(Exception e){e.printStackTrace(); System.out.println("API SERVER OFFLINE!"); modifiedSentence = "API SERVER OFFLINE!";}
-
-
+		krypton_database_get_token tokenx = new krypton_database_get_token();
+		token1 = tokenx.get_token(x);
 
 		return token1;
 
-	}//****************************************
-
+	}
 
 
 
@@ -569,7 +526,7 @@ edit_view_item(){//****************************
 		if(showid <= 100000){back.setEnabled(false);}
 		else{back.setEnabled(true);}
 
-		if(showid >= (100000 + (krypton.hard_token_limit -1))){next.setEnabled(false);}
+		if(showid >= (100000 + (network.hard_token_limit -1))){next.setEnabled(false);}
 		else{next.setEnabled(true);}
 
 		show_idx.setText(Integer.toString(showid));
@@ -667,7 +624,7 @@ edit_view_item(){//****************************
 
         String build_hash = new String();
         build_hash = build_hash + itemx[0];
-       	for(int loop1 = 3; loop1 < krypton.listing_size; loop1++){//***********
+       	for(int loop1 = 3; loop1 < network.listing_size; loop1++){//***********
 
             build_hash = build_hash + itemx[loop1];
 
@@ -715,8 +672,8 @@ edit_view_item(){//****************************
 
 
 
-        if(testx1 && testx2){item_verify.setIcon(krypton.imx1);}
-        else{item_verify.setIcon(krypton.imx0);}
+        if(testx1 && testx2){item_verify.setIcon(network.imx1);}
+        else{item_verify.setIcon(network.imx0);}
 
 
 
