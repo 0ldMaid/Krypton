@@ -38,14 +38,15 @@ public class krypton_database_load_network{
     krypton_database_load_network(){//**************************************************************************
     network.database_in_use = 1;
 
-        try{
 
+
+        try{
 
 
             network.network_list = new ArrayList<String>();
 
             System.out.println("Load Network GX..." );
-
+            krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM network ORDER BY address");
 
 	        ix0 = 0;
@@ -69,6 +70,7 @@ public class krypton_database_load_network{
 
 
 
+
             krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT id FROM listings_db");
 
@@ -83,7 +85,7 @@ public class krypton_database_load_network{
 
 
 
-
+            krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 	        krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT id FROM settings ORDER BY id");
 
 	        krypton_database_driver.rs.last();
@@ -181,7 +183,6 @@ public class krypton_database_load_network{
 
             krypton_database_driver.conn.commit();
             System.out.println("Committed the transaction");
-
 
 
 

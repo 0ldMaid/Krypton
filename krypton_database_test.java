@@ -83,181 +83,181 @@ public class krypton_database_test{
 
 
 
-                System.out.println("Loading 2");
+            System.out.println("Loading 2");
 
 
-                //s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT xd FROM send_buffer");
+            //s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT xd FROM send_buffer");
 
-                krypton_database_driver.rs.last();
-                int rowCountbu = krypton_database_driver.rs.getRow();
-                network.send_buffer_size = rowCountbu;
+            krypton_database_driver.rs.last();
+            int rowCountbu = krypton_database_driver.rs.getRow();
+            network.send_buffer_size = rowCountbu;
 
-                System.out.println("network.send_buffer_size " + network.send_buffer_size);
-
-
-
-
-
-
-                System.out.println("Loading 3");
-
-
-                //s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT hash_id FROM unconfirmed_db ORDER BY xd DESC");
-
-                krypton_database_driver.rs.last();
-                int rowCount5u = krypton_database_driver.rs.getRow();
-                network.database_unconfirmed_total = rowCount5u;
-
-                System.out.println("<<>>");
-
-                if(rowCount5u > 0){
-
-                    krypton_database_driver.rs.first();
-                    network.last_unconfirmed_idx = krypton_database_driver.rs.getString("hash_id");
-
-                }
-                else{network.last_unconfirmed_idx = "";}
-
-                System.out.println("network.unconfirmed TOTAL " + network.database_unconfirmed_total);
-                System.out.println("network.last_unconfirmed_idx " + network.last_unconfirmed_idx);
+            System.out.println("network.send_buffer_size " + network.send_buffer_size);
 
 
 
 
 
 
-                System.out.println("Loading 4");
+            System.out.println("Loading 3");
 
-                network.last_block_ql = new String[network.listing_size];
-                longstamp_hold = network.last_block_longstamp1;
 
-                System.out.println("Loading 4 1");
+            //s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT hash_id FROM unconfirmed_db ORDER BY xd DESC");
 
-                krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                //s.setMaxRows(1); 
-                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT link_id,mining_date,mining_new_block,mining_old_block,hash_id FROM mining_db ORDER BY xd DESC FETCH FIRST ROW ONLY");
-                
-                System.out.println("Loading 4 2");
+            krypton_database_driver.rs.last();
+            int rowCount5u = krypton_database_driver.rs.getRow();
+            network.database_unconfirmed_total = rowCount5u;
+
+            System.out.println("<<>>");
+
+            if(rowCount5u > 0){
 
                 krypton_database_driver.rs.first();
+                network.last_unconfirmed_idx = krypton_database_driver.rs.getString("hash_id");
 
-                try{network.last_block_longstamp2 = longstamp_hold; network.last_block_longstamp1 = Long.parseLong(krypton_database_driver.rs.getString("mining_date"));} 
-                catch(Exception e){System.out.println("Cannot get last block timestamp.");}
+            }
+            else{network.last_unconfirmed_idx = "";}
 
-                network.last_block_id = krypton_database_driver.rs.getString("link_id");
-                network.last_block_mining_idx = krypton_database_driver.rs.getString("mining_new_block");
-                network.prev_block_mining_idx = krypton_database_driver.rs.getString("mining_old_block");
-                network.last_block_idx = krypton_database_driver.rs.getString("hash_id");
-
-                System.out.println("network.last_block_id " + network.last_block_id);
-                System.out.println("network.last_block_idx " + network.last_block_idx);
-                System.out.println("network.last_block_mining_idx " + network.last_block_mining_idx);
-                System.out.println("last_block_longstamp1 " + network.last_block_longstamp1);
-                System.out.println("last_block_longstamp2 " + network.last_block_longstamp2);
+            System.out.println("network.unconfirmed TOTAL " + network.database_unconfirmed_total);
+            System.out.println("network.last_unconfirmed_idx " + network.last_unconfirmed_idx);
 
 
 
 
 
 
+            System.out.println("Loading 4");
 
-                System.out.println("Loading 5");
+            network.last_block_ql = new String[network.listing_size];
+            longstamp_hold = network.last_block_longstamp1;
 
-                //testing
-                //load last few blocks to build difficulty
-                network.block_difficulty_test = 0;
-                network.block_difficulty_listx = new String[network.block_difficulty_reset];
-                network.block_date_listx = new String[network.block_difficulty_reset];
+            System.out.println("Loading 4 1");
 
-                //s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                krypton_database_driver.s.setMaxRows(network.block_difficulty_reset); 
-                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT mining_difficulty,mining_date FROM mining_db ORDER BY mining_date DESC");
+            krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            //s.setMaxRows(1); 
+            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT link_id,mining_date,mining_new_block,mining_old_block,hash_id FROM mining_db ORDER BY xd DESC FETCH FIRST ROW ONLY");
+                
+            System.out.println("Loading 4 2");
 
-                while(krypton_database_driver.rs.next()){
+            krypton_database_driver.rs.first();
 
-                    try{
+            try{network.last_block_longstamp2 = longstamp_hold; network.last_block_longstamp1 = Long.parseLong(krypton_database_driver.rs.getString("mining_date"));} 
+            catch(Exception e){System.out.println("Cannot get last block timestamp.");}
 
-                        network.block_difficulty_listx[network.block_difficulty_test] = new String(krypton_database_driver.rs.getString("mining_difficulty"));
-                        network.block_date_listx[network.block_difficulty_test] = new String(krypton_database_driver.rs.getString("mining_date"));
+            network.last_block_id = krypton_database_driver.rs.getString("link_id");
+            network.last_block_mining_idx = krypton_database_driver.rs.getString("mining_new_block");
+            network.prev_block_mining_idx = krypton_database_driver.rs.getString("mining_old_block");
+            network.last_block_idx = krypton_database_driver.rs.getString("hash_id");
 
-                        network.block_difficulty_test++;
-
-                    }catch(Exception e){}
-
-                }//while
-
-
-
-
-
-                System.out.println("Loading 6");
-
-                //set difficulty
-                if(network.block_difficulty_test == network.block_difficulty_reset){
-
-                    Long l1 = (long) Long.parseLong( network.block_date_listx[0] );
-                    Long l2 = (long) Long.parseLong( network.block_date_listx[(network.block_difficulty_reset - 1)] );
-
-                    System.out.println("l1 " + l1);
-                    System.out.println("l2 " + l2);
-
-                    Long l3 = (long) l1 - l2;
-                    Long xlx = (long) 0;
-
-                        for (int loop = 0; loop < network.block_difficulty_reset; loop++){
-
-                            xlx = (long) (xlx + Long.parseLong(network.block_difficulty_listx[loop]));
-
-                        }//***************************************************************
-
-                    System.out.println("xlx " + xlx);
-
-                    xlx = (long) (xlx / network.block_difficulty_reset);
-
-                    System.out.println("xlx2 " + xlx);
+            System.out.println("network.last_block_id " + network.last_block_id);
+            System.out.println("network.last_block_idx " + network.last_block_idx);
+            System.out.println("network.last_block_mining_idx " + network.last_block_mining_idx);
+            System.out.println("last_block_longstamp1 " + network.last_block_longstamp1);
+            System.out.println("last_block_longstamp2 " + network.last_block_longstamp2);
 
 
-                        if(l3 > 0){
 
-                            Long l4 = (long) l3 / network.block_difficulty_reset;
 
-                            network.blocktimesx = l4;
 
-                                System.out.println("network.difficultyx a " + network.difficultyx);
-                                System.out.println("network.blocktimesx " + network.blocktimesx);
 
-                                Float percentx = (float) network.target_block_adjustment / 100;
-                                System.out.println("percentx " + percentx);
 
-                                long change = (long) (xlx * percentx);
-                                System.out.println("change " + change);
+            System.out.println("Loading 5");
 
-                                long new_difficulty_up = (long) (xlx - change);
-                                long new_difficulty_down = (long) (xlx + change);
-                                long new_difficulty_up_x2 = (long) (xlx - (change * 5));
-                                long new_difficulty_down_x2 = (long) (xlx + (change * 5));
-                                System.out.println("new_difficulty_up " + new_difficulty_up);
-                                System.out.println("new_difficulty_down " + new_difficulty_down);
+            //testing
+            //load last few blocks to build difficulty
+            network.block_difficulty_test = 0;
+            network.block_difficulty_listx = new String[network.block_difficulty_reset];
+            network.block_date_listx = new String[network.block_difficulty_reset];
 
-                                System.out.println("network.blocktimesx " + network.blocktimesx);
-                                System.out.println("network.target_block_speed " + network.target_block_speed);
+            //s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            krypton_database_driver.s.setMaxRows(network.block_difficulty_reset); 
+            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT mining_difficulty,mining_date FROM mining_db ORDER BY mining_date DESC");
 
-                                if(network.blocktimesx < (network.target_block_speed / 2)){System.out.println("DIFFICULTY UP X2"); network.difficultyx = new_difficulty_up_x2;}
-                                else if(network.blocktimesx > (network.target_block_speed * 2)){System.out.println("DIFFICULTY DOWN X2"); network.difficultyx = new_difficulty_down_x2;}
-                                else if(network.blocktimesx < network.target_block_speed){System.out.println("DIFFICULTY UP"); network.difficultyx = new_difficulty_up;}
-                                else if(network.blocktimesx > network.target_block_speed){System.out.println("DIFFICULTY DOWN"); network.difficultyx = new_difficulty_down;}
-                                else{System.out.println("DIFFICULTY NO CHANGE");}
+            while(krypton_database_driver.rs.next()){
 
-                                if(network.difficultyx < 0){network.difficultyx = network.difficultyx_limit;}
-                                if(network.difficultyx > network.difficultyx_limit){network.difficultyx = network.difficultyx_limit;}
+                try{
 
-                                if(network.new_database_start == 1){network.difficultyx = network.difficultyx_limit;}
+                    network.block_difficulty_listx[network.block_difficulty_test] = new String(krypton_database_driver.rs.getString("mining_difficulty"));
+                    network.block_date_listx[network.block_difficulty_test] = new String(krypton_database_driver.rs.getString("mining_date"));
 
-                                System.out.println("network.difficultyx b " + network.difficultyx);
+                    network.block_difficulty_test++;
 
-                        }//********
+                }catch(Exception e){}
+
+            }//while
+
+
+
+
+
+            System.out.println("Loading 6");
+
+            //set difficulty
+            if(network.block_difficulty_test == network.block_difficulty_reset){
+
+                Long l1 = (long) Long.parseLong( network.block_date_listx[0] );
+                Long l2 = (long) Long.parseLong( network.block_date_listx[(network.block_difficulty_reset - 1)] );
+
+                System.out.println("l1 " + l1);
+                System.out.println("l2 " + l2);
+
+                Long l3 = (long) l1 - l2;
+                Long xlx = (long) 0;
+
+                for (int loop = 0; loop < network.block_difficulty_reset; loop++){
+
+                    xlx = (long) (xlx + Long.parseLong(network.block_difficulty_listx[loop]));
+
+                }//***************************************************************
+
+                System.out.println("xlx " + xlx);
+
+                xlx = (long) (xlx / network.block_difficulty_reset);
+
+                System.out.println("xlx2 " + xlx);
+
+
+                    if(l3 > 0){
+
+                        Long l4 = (long) l3 / network.block_difficulty_reset;
+
+                        network.blocktimesx = l4;
+
+                        System.out.println("network.difficultyx a " + network.difficultyx);
+                        System.out.println("network.blocktimesx " + network.blocktimesx);
+
+                        Float percentx = (float) network.target_block_adjustment / 100;
+                        System.out.println("percentx " + percentx);
+
+                        long change = (long) (xlx * percentx);
+                        System.out.println("change " + change);
+
+                        long new_difficulty_up = (long) (xlx - change);
+                        long new_difficulty_down = (long) (xlx + change);
+                        long new_difficulty_up_x2 = (long) (xlx - (change * 5));
+                        long new_difficulty_down_x2 = (long) (xlx + (change * 5));
+                        System.out.println("new_difficulty_up " + new_difficulty_up);
+                        System.out.println("new_difficulty_down " + new_difficulty_down);
+
+                        System.out.println("network.blocktimesx " + network.blocktimesx);
+                        System.out.println("network.target_block_speed " + network.target_block_speed);
+
+                        if(network.blocktimesx < (network.target_block_speed / 2)){System.out.println("DIFFICULTY UP X2"); network.difficultyx = new_difficulty_up_x2;}
+                        else if(network.blocktimesx > (network.target_block_speed * 2)){System.out.println("DIFFICULTY DOWN X2"); network.difficultyx = new_difficulty_down_x2;}
+                        else if(network.blocktimesx < network.target_block_speed){System.out.println("DIFFICULTY UP"); network.difficultyx = new_difficulty_up;}
+                        else if(network.blocktimesx > network.target_block_speed){System.out.println("DIFFICULTY DOWN"); network.difficultyx = new_difficulty_down;}
+                        else{System.out.println("DIFFICULTY NO CHANGE");}
+
+                        if(network.difficultyx < 0){network.difficultyx = network.difficultyx_limit;}
+                        if(network.difficultyx > network.difficultyx_limit){network.difficultyx = network.difficultyx_limit;}
+
+                        if(network.new_database_start == 1){network.difficultyx = network.difficultyx_limit;}
+
+                        System.out.println("network.difficultyx b " + network.difficultyx);
+
+                    }//********
 
                 }//*********************************************************
                 else{}
@@ -266,20 +266,20 @@ public class krypton_database_test{
 
 
 
-	           if(network.database_active == 11){network.database_active = 1;}
-	           System.out.println("DB LOADED...");
+	        if(network.database_active == 11){network.database_active = 1;}
+	        System.out.println("DB LOADED...");
 
 
 
 
-                System.out.println(System.currentTimeMillis() - thisTick);
+            System.out.println(System.currentTimeMillis() - thisTick);
 
 
 
 
 
-                krypton_database_driver.conn.commit();
-                System.out.println("Committed the transaction");
+            krypton_database_driver.conn.commit();
+            System.out.println("Committed the transaction");
 
 
         }catch(Exception e){e.printStackTrace();}

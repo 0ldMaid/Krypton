@@ -59,13 +59,6 @@ import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.spec.RSAPrivateCrtKeySpec;
 
-import com.subgraph.orchid.circuits.hs.HSDescriptorCookie;
-import com.subgraph.orchid.config.TorConfigBridgeLine;
-import com.subgraph.orchid.data.HexDigest;
-import com.subgraph.orchid.data.IPv4Address;
-import com.subgraph.orchid.encoders.Hex;
-import com.subgraph.orchid.*;
-
 import java.util.List;
 
 import java.awt.datatransfer.*;
@@ -78,7 +71,6 @@ import javax.swing.SwingConstants;
 
 public class network extends JFrame implements ActionListener{
 
-//static TorClient tor = new TorClient();
 
 Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
 int xzx = 700;
@@ -93,6 +85,7 @@ FlowLayout flow0 = new FlowLayout(0);
 static Font f_00 = new Font("Arial", Font.PLAIN, 10);
 static Font f_01 = new Font("Arial", Font.PLAIN, 12);
 static Font f_02 = new Font("Arial", Font.PLAIN, 18);
+static Font f_03 = new Font("Arial", Font.BOLD, 12);
 
 static TrayIcon icon;
 
@@ -112,12 +105,13 @@ static String item_layout[];//get a few blocks to test.
 static String block_difficulty_listx[];//get a few blocks to test.
 static String block_date_listx[];//get a few blocks to test.
 static String last_block_ql[];//get a few blocks to test.
+static String last_minex_ql[];//net used yet
 static String html_block_ql[];//quickload for html pages.
 
 
-static String base58_id = new String("");//your base 58 key
+static String base58_id = new String("key");//your base 58 key
 
-static String versionx = new String("1.2.4");
+static String versionx = new String("1.2.5");
 static String idx = new String("");
 static String xtypex = new String("user");
 static String last_block_timestamp = new String("");
@@ -125,15 +119,19 @@ static String last_block_id = new String("");
 static String last_block_idx = new String("");
 static String last_block_mining_idx = new String("");
 static String prev_block_mining_idx = new String("");
+static String last_remote_mining_idx = new String("");//this is a copy of the remote peer's mining ID
+static String last_remote_mining_prev_idx = new String("");//^^ PREV
 static String last_unconfirmed_idx = new String("");
-static String ltc_mining_speed = new String("Development Mining");
+static String last_package_x = new String("");
 static String buffered_mining_block = new String("");//the mining block that is ready to send.
-static String buffered_listing_block = new String("");//the mining block that is ready to send.
+static String buffered_listing_block = new String("");//the listing block that is ready to send.
+static String buffered_package_block = new String("");//the mining package that is ready to send.
+static String ltc_mining_speed = new String("Development Mining");//net used
 
 
-static Long lastFrame;
-static Long thisTick;
-static Long seconds;
+static Long lastFrame = (long) 0;
+static Long thisTick = (long) 0;
+static Long seconds = (long) 0;
 static Long loaddbx_longstamp = (long) 0;
 static Long dbxadd_longstamp = (long) 0;
 static Long dbxmine_longstamp = (long) 0;
@@ -141,7 +139,7 @@ static Long last_block_longstamp1 = (long) 0;
 static Long last_block_longstamp2 = (long) 0;
 static Long starttime = (long) 100;
 static long difficultyx = (long) 24000000000000000.00;//mining difficulty
-static long difficultyx_limit = (long) 44000000000000000.00;//mining difficulty limite
+final static long difficultyx_limit = (long) 44000000000000000.00;//mining difficulty limit
 static long blocktimesx = (long) 60;//time between blocks
 static long last_block_time = (long) 0;//time since last block
 static long time_block_added = (long) 0;//time since last block was added to THIS database
@@ -154,7 +152,7 @@ static int base_int = 100000;//base id
 static int open_network = 0;//allow new nodes without confirmation
 static int network_chain = 100;//number of nodes in network chain
 static int network_size = 0;//number of nodes in network chain
-static int network_up_to_date = 0;
+//static int network_up_to_date = 0;//unused
 static int send_requests = 0;
 static int inbox_requests = 0;
 static int get_requests = 0;
@@ -180,7 +178,7 @@ static int peerid2 = -1;
 static int peerid3 = -1;
 static int peerid4 = -1;
 static int listing_size = 69;//listing token sections
-static int miningx_size = 9;//listing token sections
+static int miningx_size = 10;//listing token sections
 static int tor_active = 0;//is TOR working?
 static int tor_starting = 0;//is TOR working?
 static int connection_active = 0;//we have a real connection to a host not just a tor start.
@@ -194,17 +192,23 @@ static int blocks_verified = 0;//is mining on or off.
 static int block_difficulty_reset = 100;//how many blocks before reset.
 static int block_difficulty_test = 0;//test for enough blocks to build test > difficulty reset...
 static int hard_token_limit = 25000;//total number of tokens to allow.
-static int target_block_speed = 300000;//target speed 300 seconds.
+static int target_block_speed = 300000;//target speed 200 seconds.
 static int target_block_adjustment = 1;//percent
-static int confirm_before_delete = 25000;//how many confirmations before we delete the old blocks.
+static int confirm_before_delete = 125000;//how many confirmations before we delete the old blocks.
 static int database_in_use = 0;//already working.
 static int tor_in_use = 0;//already working.
 static int no_peers_time = 0;//how long since last peer connection.
-static int package_block_size = 20;//how many blocks to send per package.
+static int package_block_size = 15;//how many blocks to send per package.
+static int block_compress_size = 10;//how many blocks can be put together to speed up confirmations
 static int send_buffer_size = 0;//how many blocks are in the send buffer.
 static int website_hits = 0;//number of pages requested.
 static int website_searches = 0;//number of search requests.
 static int mining_block_ready = 0;//if the program has a block that is ready to send.
+static int mining_package_ready = 0;//if the program has a package ready to be sent. 
+static int start_api_server = 1;//args if the server should be started or not. 
+static int start_server = 1;//args if the server should be started or not. 
+static int database_test_full = 0;//database complete test
+static int database_time_out = 20;//seconds to wait to get a lock
 
 
 static Color st_gray1 = new Color(0.8f, 0.8f, 0.8f);//light gray for sites
@@ -300,10 +304,6 @@ static JPanel build3 = new JPanel();
 static JPanel build4 = new JPanel();
 static JPanel build5 = new JPanel();
 static JPanel build6 = new JPanel();
-
-
-
-
 
 
 JButton button1 = new JButton("Restart");
@@ -721,7 +721,7 @@ network(){
 
     JMenuBar menuBar = new JMenuBar();
 
-    database_test.setEnabled(false);
+    database_test.setEnabled(true);
 	tools_vote.setEnabled(false);
 	tools_print_blocks.setEnabled(false);
 	account_sign.setEnabled(false);
@@ -760,12 +760,12 @@ network(){
 
 
 
-	fileMenu.setFont(f_01);
+	fileMenu.setFont(f_03);
     //fileMenu.add(exit_save);
     fileMenu.add(exit);
     
 
-	editMenu.setFont(f_01);
+	editMenu.setFont(f_03);
 	editMenu.add(edit_get_ids);
 	editMenu.add(tools_vote);
 	editMenu.add(tools_print_blocks);
@@ -773,14 +773,14 @@ network(){
 
 	groupd.add(all_yes);
 	groupd.add(x100_yes);
-	databaseMenu.setFont(f_01);
+	databaseMenu.setFont(f_03);
 	//databaseMenu.add(all_yes);
 	//databaseMenu.add(x100_yes);
 	//databaseMenu.addSeparator();
 	databaseMenu.add(database_test);
 
 
-    accountMenu.setFont(f_01);
+    accountMenu.setFont(f_03);
 	accountMenu.add(account_public_key);
 	accountMenu.add(account_private_key);
 	accountMenu.add(account_sign);
@@ -791,7 +791,7 @@ network(){
 
 	groupn.add(nodes_yes);
 	groupn.add(nodes_no);
-    nodeMenu.setFont(f_01);
+    nodeMenu.setFont(f_03);
     nodeMenu.add(nodes_yes);
     nodeMenu.add(nodes_no);
     nodeMenu.addSeparator();
@@ -806,9 +806,7 @@ network(){
 	exit_save.addActionListener(this);
 	exit.addActionListener(this);
 
-	account_public_key.addActionListener(this);
-    account_private_key.addActionListener(this);
-	account_import.addActionListener(this);
+	database_test.addActionListener(this);
 
 	edit_get_ids.addActionListener(this);
 	edit_token.addActionListener(this);
@@ -818,6 +816,10 @@ network(){
 
 	tools_new_keys.addActionListener(this);
 	tools_print_blocks.addActionListener(this);
+
+	account_public_key.addActionListener(this);
+    account_private_key.addActionListener(this);
+	account_import.addActionListener(this);
 
 	nodes_yes.addActionListener(this);
 	nodes_no.addActionListener(this);
@@ -993,7 +995,7 @@ network(){
 		starttime = System.currentTimeMillis();
 
 		SysTray();
-		System.out.println(System.getProperty("sun.arch.data.model"));
+		//System.out.println(System.getProperty("sun.arch.data.model"));
 
 
 
@@ -1127,7 +1129,7 @@ network(){
 		//server start
 		try{
 
-			krypton_net_server server = new krypton_net_server();
+			if(start_server == 1){krypton_net_server server = new krypton_net_server();}
 
 		}catch(Exception e){e.printStackTrace();}
 
@@ -1141,6 +1143,24 @@ network(){
 			}catch(Exception e){e.printStackTrace();}
 
 		}//if***********************
+
+
+
+		try{
+
+			File x3 = new File(base58_id + ".png");
+
+			//System.out.println("File " + x3.exists());
+
+			if(x3.exists()){
+
+				Icon ccimx2 = new ImageIcon(base58_id + ".png");
+				buttonqr.setIcon(ccimx2);
+
+			}//*************
+			else{get_new_keys();}
+							
+		}catch(Exception e){System.out.println("Error loading QR code...");}//*****************
 
 
 
@@ -1445,48 +1465,46 @@ network(){
 
 
 
-	public void restartApplication(){
+	public void testDatabase(){
 
-		try{
-
-
-  			final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "javaw";
-  			final File currentJar = new File(network.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-
-  			System.out.println("javaBin " + javaBin);
-  			System.out.println("currentJar " + currentJar);
-  			System.out.println("currentJar.getPath() " + currentJar.getPath());
-
-  			/* is it a jar file? */
-  			//if(!currentJar.getName().endsWith(".jar")){return;}
-
-  			try{
-
-				//xmining = 0;
-  				//systemx.shutdown();
-
-  			}catch(Exception e){e.printStackTrace();}
-
-  			/* Build command: java -jar application.jar */
-  			final ArrayList<String> command = new ArrayList<String>();
-  			command.add(javaBin);
-  			command.add("-jar");
-  			command.add("-Xms256m");
-  			command.add("-Xmx1024m");
-  			command.add(currentJar.getPath());
-
-  			final ProcessBuilder builder = new ProcessBuilder(command);
-  			builder.start();
-
-  			//try{Thread.sleep(10000);} catch (InterruptedException e){}
+		int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to test the database? \nThis will close the program and start the test system.");
+ 		if(response == 0){
 
 
-  			//close and exit
-  			SystemTray.getSystemTray().remove(icon);
-  			System.exit(0);
+			try{
 
-  		}//try
-  		catch(Exception e){JOptionPane.showMessageDialog(null, e.getCause());}
+
+	  			final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "javaw";
+	  			final File currentJar = new File(network.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+
+	  			System.out.println("javaBin " + javaBin);
+	  			System.out.println("currentJar " + currentJar);
+	  			System.out.println("currentJar.getPath() " + currentJar.getPath());
+				System.out.println(System.getProperty("user.dir") + File.separator + "krypton_database_test_full");
+
+	  			/* Build command: java -jar application.jar */
+	  			final ArrayList<String> command = new ArrayList<String>();
+	  			command.add(javaBin);
+	  			command.add("-jar");
+	  			command.add("-Xms256m");
+	  			command.add("-Xmx512m");
+	  			command.add(currentJar.getPath() + File.separator + "Verify.jar");
+	  			//command.add("krypton_database_test_full");
+
+	  			final ProcessBuilder builder = new ProcessBuilder(command);
+	  			builder.start();
+
+	  			try{Thread.sleep(1000);} catch (InterruptedException e){}
+
+
+	  			//close and exit
+	  			SystemTray.getSystemTray().remove(icon);
+	  			System.exit(0);
+
+	  		}//try
+	  		catch(Exception e){JOptionPane.showMessageDialog(null, e.getCause());}
+
+	  	}//if
 
 	}//******************************
 
@@ -1674,23 +1692,23 @@ network(){
 	public void delete_network(){
 
 
-			int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the network list?");
- 			if(response == 0){
+		int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the network list?");
+ 		if(response == 0){
 
 
-				while(network.database_in_use == 1){
+			while(network.database_in_use == 1){
 
-					int test_db = 0;
-		    		System.out.println("Database in use... delete node network");
-					try{Thread.sleep(1000);} catch (InterruptedException e){}
-					test_db++;
+				int test_db = 0;
+		    	System.out.println("Database in use... delete node network");
+				try{Thread.sleep(1000);} catch (InterruptedException e){}
+				test_db++;
 
-		    	}//*********************************
+		    }//*********************************
 
-            	krypton_database_delete_network pxd = new krypton_database_delete_network();
-            	krypton_database_load xxs = new krypton_database_load();
+            krypton_database_delete_network pxd = new krypton_database_delete_network();
+            krypton_database_load xxs = new krypton_database_load();
 
-            }//***************
+        }//***************
 
 
 
@@ -1944,7 +1962,7 @@ network(){
     	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
     	clipboard.setContents(selection, selection);
 
-		JOptionPane.showMessageDialog(null, "Key saved to clipboard");
+		JOptionPane.showMessageDialog(null, "Public Key saved to clipboard");
 
 	}//******************************
 
@@ -2075,6 +2093,7 @@ public void actionPerformed(ActionEvent event){
 	if(event.getSource() == edit_token)               {edit_item xx = new edit_item();}
 	if(event.getSource() == node_status)              {}
 	if(event.getSource() == edit_get_ids)             {get_ids();}
+	if(event.getSource() == database_test)            {testDatabase();}
 
 	if(event.getSource() == account_public_key)       {save_pub_key_clipboard();}
 	if(event.getSource() == account_private_key)      {save_pri_key_clipboard();}
@@ -2113,6 +2132,32 @@ public void actionPerformed(ActionEvent event){
 
 //start the program.
     public static void main(String[] args) {
+
+    	//get server port
+		for (int loop = 0; loop < args.length; loop++){//************
+
+			try{
+
+				if(args[loop].contains("apiPort:")){api_port = Integer.parseInt(args[loop].substring(8,args[loop].length()));}
+
+			}catch(Exception e){e.printStackTrace();}
+
+		}//**********************************************************
+		System.out.println("api_port: " + api_port);
+
+    	//get server port
+		for (int loop = 0; loop < args.length; loop++){//************
+
+			try{
+
+				if(args[loop].contains("startServer:0")){start_server = 0;}
+
+			}catch(Exception e){e.printStackTrace();}
+
+		}//**********************************************************
+		System.out.println("start_server: " + start_server);
+
+
 
 		network black = new network();
 

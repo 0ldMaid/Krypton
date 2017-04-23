@@ -162,12 +162,11 @@ public String peer_start(int peer_id){//****************************************
 
 			//after the connection is active we wait a while to see if any new information needs to be sent. 
 			//System.out.println("break1 " + breakx1);
-			try{Thread.sleep(1000);}catch(InterruptedException e){}
+			try{Thread.sleep(1000);} catch(InterruptedException e){}
 			breakx1++;
 
 			//the break will end if longer then 30
 			if(breakx1 > 30){System.out.println("break end"); break;}//this over 400 seems to be trouble
-			if(!peer_net_api.blocks_uptodate){System.out.println("Need new blocks! break"); break;}
 
 	  	}//****************************
 
@@ -235,6 +234,9 @@ public String peer_start(int peer_id){//****************************************
 
 				//send any new blocks if they are found.
 				if(peer_net_api.peer1sendBufferB1 != null && peer_net_api.blocks_uptodate){send_new_block_update();}
+
+				//send package if we have one
+				if(peer_net_api.peer1sendPackageB1 != null && peer_net_api.blocks_uptodate){send_new_package_update();}
 
 
 			}//if**********************
@@ -391,10 +393,11 @@ public String peer_start(int peer_id){//****************************************
 						if(node == 3){new_hash4 = block;}
 
 
+
 						//test the new has to see if we have the most recent.
-						if(block.equals(peer_net_api.last_block_mining_idx)){System.out.println("Blocks up to date..."); peer_net_api.stop_mining = 1; peer_net_api.network_up_to_date = 0; peer_net_api.blocks_uptodate = true;}
-						else if(Long.parseLong(block_timestamp) < Long.parseLong(peer_net_api.last_block_timestamp)){System.out.println("Blocks are ahead..."); peer_net_api.stop_mining = 1; peer_net_api.network_up_to_date = 0; peer_net_api.blocks_uptodate = true;}
-						else{System.out.println("Blocks are not up to date..."); peer_net_api.stop_mining = 1; peer_net_api.network_up_to_date = 1; peer_net_api.blocks_uptodate = false;}
+						if(block.equals(peer_net_api.last_block_mining_idx)){System.out.println("Blocks up to date..."); peer_net_api.stop_mining = 0; peer_net_api.blocks_uptodate = true;}
+						else if(Long.parseLong(block_timestamp) < Long.parseLong(peer_net_api.last_block_timestamp)){System.out.println("Blocks are ahead..."); peer_net_api.stop_mining = 0; peer_net_api.blocks_uptodate = true;}
+						else{System.out.println("Blocks are not up to date..."); peer_net_api.stop_mining = 1; peer_net_api.blocks_uptodate = false;}
 
 						//test the pending database to see if there are new items.
 						if(unconfirmed_block.equals(peer_net_api.last_unconfirmed_idx) || unconfirmed_block.equals("")){System.out.println("Unconfirmed blocks up to date...");}
@@ -404,13 +407,18 @@ public String peer_start(int peer_id){//****************************************
 						if(peer_net_api.network_size >= Integer.parseInt(network_size) || peer_net_api.open_network == 0){System.out.println("Network is up to date...");}
 						else{System.out.println("Network is missing nodes...");}
 
+
 						if(peer_net_api.send_buffer_size > 1){}
 
+						//remember the servers block in case we need to use it later
+						if(peer_net_api.last_remote_mining_idx.length() == 0 && !peer_net_api.blocks_uptodate){peer_net_api.last_remote_mining_idx = block;}
+						else if(peer_net_api.blocks_uptodate){peer_net_api.last_remote_mining_idx = "";}
 
 
-						//run
+
+						//run these settings are reversed so that they can be called in order it's a switch off not a switch on
 						if(!block.equals(peer_net_api.last_block_mining_idx)){peer_net_api.blocks_uptodate = false;}
-						else if(Long.parseLong(block_timestamp) < Long.parseLong(peer_net_api.last_block_timestamp)){peer_net_api.blocks_uptodate = true;}
+						else if(Long.parseLong(block_timestamp) < Long.parseLong(peer_net_api.last_block_timestamp)){peer_net_api.blocks_uptodate = false;}
 						else if(!unconfirmed_block.equals(peer_net_api.last_unconfirmed_idx)){request_unconfirmed_block_update();}
 						else if(peer_net_api.network_size < Integer.parseInt(network_size) && peer_net_api.open_network == 1){update_network_list();}
 						else if(peer_net_api.send_buffer_size > 0 && peer_net_api.peer1sendUnconfiremdB1 != null){send_unconfirmed_update();}
@@ -610,93 +618,6 @@ public String peer_start(int peer_id){//****************************************
 
 
 
-    public void update_buffer_list(String unconfirmed_id){//*********************************************************
-
-    	while(true){
-
-	    	System.out.println("SEND ID BACK");
-			JOptionPane.showMessageDialog(null, "SEND ID BACK " + unconfirmed_id);
-
-			String jsonText = new String("");
-
-
-			try{
-
-				JSONObject obj = new JSONObject();
-				obj.put("request", "delete_bufferx_id");
-				obj.put("password", "1234");
-				obj.put("item_id", unconfirmed_id);
-
-				StringWriter out = new StringWriter();
-				obj.writeJSONString(out);
-				jsonText = out.toString();
-				System.out.println(jsonText);
-
-			}catch(Exception e){e.printStackTrace(); System.out.println("JSON ERROR"); JOptionPane.showMessageDialog(null, e.getMessage());}
-
-
-			String sentence;   
-			String modifiedSentence = new String();   
-
-			try{
-
-				BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
-				//System.out.println(">>> " + "localhost" + " " + "55556");
-				Socket clientSocket = new Socket("localhost", network.api_port);   
-				DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-				BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
-				sentence = jsonText;  
-				outToServer.writeBytes(sentence + '\n');   
-				modifiedSentence = inFromServer.readLine();   
-				System.out.println("FROM SERVER: " + modifiedSentence);
-				clientSocket.close();
-
-
-				JSONParser parser = new JSONParser();
-
-				Object obj = parser.parse(modifiedSentence);
-				JSONObject jsonObject = (JSONObject) obj;
-		  
-				String message = (String) jsonObject.get("message");
-
-				System.out.println("message " + message);
-
-				//if(message.equals("1")){break;}
-
-				JOptionPane.showMessageDialog(null, "message " + message);
-
-
-			}catch(Exception e){
-
-				e.printStackTrace(); 
-				System.out.println("API SERVER OFFLINE!"); 
-				modifiedSentence = "API SERVER OFFLINE!"; 
-				JOptionPane.showMessageDialog(null, e.getMessage());
-
-			}//*****************
-
-			try{Thread.sleep(2000);} catch (InterruptedException e){}
-
-		}//while
-
-    }//*******************************************************************************************************************************************
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -819,16 +740,9 @@ public String peer_start(int peer_id){//****************************************
 
 					if(response.equals("1")){
 
-						JsonSentence = "active";
+						System.out.println("message " + message);
 
-						Object obj2 = parser.parse(message);
-						JSONObject jsonObject2 = (JSONObject) obj2;
-  
-						String block = (String) jsonObject2.get("add_block");
-
-						JsonSentence = block;
-
-						System.out.println("add_block " + block);
+						JsonSentence = "1";
 
 					}//***********************
 					else{JsonSentence = "error";}
@@ -866,6 +780,138 @@ public String peer_start(int peer_id){//****************************************
 
 
 
+
+
+
+
+
+
+	public String send_new_package_update(){//*****************************************************************
+
+
+		String jsonText = new String("");
+
+		Socket socket;
+
+		String sentence = new String("");
+		String modifiedSentence = new String("");  
+		String JsonSentence = new String("");
+
+
+		int tests = 0;
+		boolean testxl = true;
+		while(peer_net_api.tor_in_use == 1 && peer_net_api.database_in_use == 1){
+
+    		System.out.println("TOR in use...sbpu " + tests);
+			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			tests++;
+			if(tests > 100){testxl = false; new Exception("Cannot send package update!"); break;}
+
+    	}//*****************************
+
+		peer_net_api.tor_in_use = 1;
+
+    	if(testxl){
+
+
+			try{
+
+
+				JSONObject obj = new JSONObject();
+				obj.put("request","add_new_package");
+				obj.put("package", peer_net_api.peer1sendPackageB1);
+
+				StringWriter out = new StringWriter();
+				obj.writeJSONString(out);
+				jsonText = out.toString();
+				System.out.println(jsonText);
+
+
+			}catch(Exception e){System.out.println("JSON ERROR");}
+
+
+ 
+
+
+			try{
+
+
+   				for (int loop = 0; loop < 1; loop++){//**********************************************************************************************************
+
+					System.out.println("socket");
+
+   					socket = tor.getSocketFactory().createSocket(client_address_connect, 80);
+   					//socket.setKeepAlive(true); 
+					//socket.setSoTimeout(20000);
+
+					System.out.println("socketg");
+
+    				OutputStream outputStream = socket.getOutputStream();
+    				PrintWriter outx = new PrintWriter(outputStream);
+    				outx.print(jsonText + "\r\n\r\n");
+    				outx.flush();
+    				InputStream inputStream = socket.getInputStream();
+    				InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+    				BufferedReader in = new BufferedReader(inputStreamReader);
+
+					System.out.println("socketw");
+
+    				String line;
+    				while ((line = in.readLine()) != null) {
+
+    					System.out.println(line);
+		  				modifiedSentence = line;
+
+    				}//*************************************
+
+					outputStream.close();
+   					outx.close();
+    				in.close();
+    				socket.close();
+
+
+					JSONParser parser = new JSONParser();
+					Object obj = parser.parse(modifiedSentence);
+					JSONObject jsonObject = (JSONObject) obj;
+  
+					String response = (String) jsonObject.get("response");
+					String message = (String) jsonObject.get("message");
+					System.out.println("JSON " + response);
+
+					if(response.equals("1")){
+
+						System.out.println("message " + message);
+
+						JsonSentence = "1";
+
+					}//***********************
+					else{JsonSentence = "error";}
+
+		
+				}//for*******************************************************************************************************************************************
+
+
+			}catch(Exception e){
+
+				e.printStackTrace(); 
+				System.out.println("Cannot find node!"); 
+				JsonSentence = "not active!";
+				peer_net_api.connection_active = 0;  
+				peer_net_api.tor_active = 0; 
+				peer_net_api.tor_in_use = 0; 
+
+			}
+
+
+		}//if
+
+
+		peer_net_api.peer1sendPackageB1 = null;
+
+		peer_net_api.tor_in_use = 0;
+		return JsonSentence;
+
+	}//***********************************************************************************************
 
 
 
@@ -1004,30 +1050,23 @@ public String peer_start(int peer_id){//****************************************
         		if(gott){
 
         			//try to add the new token
-        			krypton_update_new_block_remote remotex = new krypton_update_new_block_remote();
-					test = remotex.update(update_token, mining_token, old_token);
+					update_block_api(message);
 
 				}//******
-				else{
-
-        			//too dangerous
-        			//krypton_update_new_block_remote_nt remotex = new krypton_update_new_block_remote_nt();
-					//test = remotex.update(update_token, old_token);
-
-				}//**
-
 
 				if(!test){
 
-        			krypton_update_block_stale remotex3 = new krypton_update_block_stale();
-					boolean test3 = remotex3.update(update_token, mining_token, old_token);
+        			//krypton_update_block_stale remotex3 = new krypton_update_block_stale();
+					//boolean test3 = remotex3.update(update_token, mining_token, old_token);
 
-					if(test3){System.out.println("Our block was changed to the server's block.");}
+					System.out.println("BlockChain has forked.");
+
+					//if(test3){System.out.println("Our block was changed to the server's block.");}
 
 				}//*******
 				else{System.out.println("....NO NEED TO BREAK THE CHAIN....");}
 
-				krypton_database_load loadx = new krypton_database_load();
+				//krypton_database_load loadx = new krypton_database_load();
 
 			}//***********************
 			else{JsonSentence = "error";}
@@ -1058,15 +1097,140 @@ public String peer_start(int peer_id){//****************************************
 
 
 
-
-
-
-
-
-
 	public String request_blocks_x_update(){//*****************************************************************
 
+		peer_net_api.api_in_use = 1;
 
+		String JsonSentence = new String("0");
+		String response = new String("");
+
+		response = request_blocks_x();
+		System.out.println(response);
+
+
+		if(response.equals("0")){
+
+			System.out.println("Nothing quit...");
+
+		}
+		else if(response.equals("N")){
+
+			System.out.println("Stale");
+			//JOptionPane.showMessageDialog(null, "Could not add block! N " + peer_net_api.last_remote_mining_idx);
+			String response2 = request_blocks_n();
+
+			try{
+
+				JSONParser parser = new JSONParser();
+				Object objxl = parser.parse(response2);
+				JSONObject jsonObjectxl = (JSONObject) objxl;
+
+				System.out.println("Block Package Size: " + jsonObjectxl.size());
+
+	    		for (int loop = 0; loop < jsonObjectxl.size(); loop++){//***********************************************************************************
+
+					String bufferp = (String) jsonObjectxl.get(Integer.toString(loop));
+					System.out.println("break up " + bufferp);
+					System.out.println("loop " + loop);
+				
+					if(bufferp != null){
+
+						JsonSentence = "active";
+
+						String testx = update_block_api_n(bufferp);
+
+
+						if(testx.equals("1")){
+
+	        				System.out.println("BLOCK ADDED");
+							
+						}//******
+						else if(testx.equals("0")){
+
+							//JOptionPane.showMessageDialog(null, "Could not add block! 0");
+							System.out.println("BLOCK REJECTED");
+							break;
+
+						}
+						else{break;}//**
+
+
+					}//***********************
+					else{JsonSentence = "error"; break;}
+
+					try{Thread.sleep(200);} catch(InterruptedException e){}
+
+				}//for**************************************************************************************************************************************
+
+			}catch(Exception e){e.printStackTrace();}
+
+		}
+		else{
+
+			try{
+
+				JSONParser parser = new JSONParser();
+				Object objxl = parser.parse(response);
+				JSONObject jsonObjectxl = (JSONObject) objxl;
+
+				System.out.println("Block Package Size: " + jsonObjectxl.size());
+
+	    		for (int loop = 0; loop < jsonObjectxl.size(); loop++){//***********************************************************************************
+
+					String bufferp = (String) jsonObjectxl.get(Integer.toString(loop));
+					System.out.println("break up " + bufferp);
+					System.out.println("loop " + loop);
+				
+					if(bufferp != null){
+
+						JsonSentence = "active";
+
+						//send the block to the api
+						String testx = update_block_api(bufferp);
+
+	        			if(testx.equals("1")){
+
+	        				System.out.println("BLOCK ADDED");
+							
+						}//******
+						else if(testx.equals("0")){
+
+							//JOptionPane.showMessageDialog(null, "Could not add block! 0");
+							System.out.println("BLOCK REJECTED");
+							break;
+
+						}
+						else{break;}//**
+
+
+					}//***********************
+					else{JsonSentence = "error"; break;}
+
+					try{Thread.sleep(2000);} catch(InterruptedException e){}
+
+				}//for**************************************************************************************************************************************
+
+			}catch(Exception e){e.printStackTrace();}
+
+		}//else
+
+
+		peer_net_api.api_in_use = 0;
+		return JsonSentence;
+
+	}//***********************************************************************************************
+
+
+
+
+
+
+
+
+
+	public String request_blocks_x(){//*****************************************************************
+
+		//peer_net_api.api_in_use = 1;
 
 		String jsonText = new String("");
 		String sentence = new String("");
@@ -1135,121 +1299,37 @@ public String peer_start(int peer_id){//****************************************
 			String message = (String) jsonObject.get("message");
 			System.out.println("JSON " + response);
 
+			if(!response.equals("0")){
 
+				Object objxl = parser.parse(message);
+				JSONObject jsonObjectxl = (JSONObject) objxl;
 
-			Object objxl = parser.parse(message);
-			JSONObject jsonObjectxl = (JSONObject) objxl;
+				System.out.println("Block Package Size: " + jsonObjectxl.size());
 
+				return message;
 
+			}//if
+			else{
 
-    		for (int loop = 0; loop < peer_net_api.package_block_size; loop++){//***********************************************************************************
+				//JOptionPane.showMessageDialog(null, "STALE BLOCK");
+				System.out.println("BLOCK STALE");
+				//update_stale_api();
 
-				String bufferp = (String) jsonObjectxl.get(Integer.toString(loop));
-				System.out.println("break up " + bufferp);
-				System.out.println("loop " + loop);
-			
-				if(response.equals("1") && bufferp != null){
+				return "N";
 
-					JsonSentence = "active";
-
-					Object obj2 = parser.parse(bufferp);
-					JSONObject jsonObject2 = (JSONObject) obj2;
-  
-
-
-					String mining_token[] = new String[peer_net_api.miningx_size];
-					String update_token[] = new String[peer_net_api.listing_size];
-
-    				for (int loopx = 0; loopx < peer_net_api.listing_size; loopx++){//************
-
-						update_token[loopx] = (String) jsonObject2.get("l" + Integer.toString(loopx));
-						System.out.println("convert " + update_token[loopx]);
-
-					}//*******************************************************************
-
-    				for (int loopx = 0; loopx < mining_token.length; loopx++){//************
-
-						mining_token[loopx] = (String) jsonObject2.get("m" + Integer.toString(loopx));
-						System.out.println("convert " + mining_token[loopx]);
-
-					}//******************************************************************
-
-
-
-					int test_db = 0;
-					while(peer_net_api.database_in_use == 1){
-
-    					System.out.println("Database in use...cx");
-						try{Thread.sleep(1000);} catch (InterruptedException e){}
-						test_db++;
-						if(test_db > 20){break;}
-
-    				}//*********************************
-
-        			//get the last token
-        			krypton_database_get_token getxt = new krypton_database_get_token();
-        			String req_id = update_token[0];
-        			String old_token[] = new String[peer_net_api.listing_size];
-        			old_token = getxt.get_token(req_id);
-
-        			boolean gott = false;
-        			try{System.out.println("GOT TOKENX: " + Integer.parseInt(old_token[0])); gott = true;}
-        			catch(Exception e){gott = false;}
-
-        			System.out.println("gott " + gott);
-
-        			boolean test = false;
-
-        			if(gott && !update_token[0].equals("error")){
-
-        				//try to add the new token
-        				krypton_update_new_block_remote remotex = new krypton_update_new_block_remote();
-						test = remotex.update(update_token, mining_token, old_token);
-						
-					}//******
-					else{
-        				//try to add the new token but we don't have the old token
-        				//too dangerous
-        				//krypton_update_new_block_remote_nt remotex = new krypton_update_new_block_remote_nt();
-						//test = remotex.update(update_token, old_token);
-					}//**
-
-
-
-					if(!test){
-
-        				krypton_update_block_stale remotex3 = new krypton_update_block_stale();
-						boolean test3 = remotex3.update(update_token, mining_token, old_token);
-
-						if(test3){System.out.println("Our block was changed to the server's block.");}
-						else{System.out.println("EXIT"); try{Thread.sleep(440000);} catch (InterruptedException e){} break;}
-
-					}//*******
-					else{System.out.println("....NO NEED TO BREAK THE CHAIN....");}
-
-					krypton_database_load loadx = new krypton_database_load();
-					try{Thread.sleep(1000);} catch (InterruptedException e){}
-
-
-
-				}//***********************
-				else{JsonSentence = "error"; break;}
-
-		
-
-			}//for***************************************************************************************************************************************
-
+			}//**
 
 		}catch(Exception e){ 
 
 			e.printStackTrace(); 
 			System.out.println("Cannot find node!"); 
-			JsonSentence = "not active!"; 
+			JsonSentence = "0"; 
 			peer_net_api.connection_active = 0; 
 			peer_net_api.tor_active = 0; 
 
 		}
 
+		//peer_net_api.api_in_use = 0;
 
 		return JsonSentence;
 
@@ -1261,6 +1341,374 @@ public String peer_start(int peer_id){//****************************************
 
 
 
+	public String request_blocks_n(){//*****************************************************************
+
+		//peer_net_api.api_in_use = 1;
+
+		String jsonText = new String("");
+		String sentence = new String("");
+		String modifiedSentence = new String("");  
+		String JsonSentence = new String(""); 
+		Socket socket;
+
+
+
+		try{
+
+			JSONObject obj = new JSONObject();
+			obj.put("request","blocks_n_update");
+			obj.put("block_id", peer_net_api.last_remote_mining_idx);
+
+			StringWriter out = new StringWriter();
+			obj.writeJSONString(out);
+			jsonText = out.toString();
+			System.out.println(jsonText);
+
+		}catch(Exception e){System.out.println("JSON ERROR");}
+
+
+		try{
+
+			System.out.println("address: " + client_port_connect);
+			System.out.println("address: " + client_address_connect);
+
+			System.out.println("socket");
+
+   			socket = tor.getSocketFactory().createSocket(client_address_connect, 80);
+   			//socket.setKeepAlive(true); 
+			//socket.setSoTimeout(20000);
+
+			System.out.println("socketg");
+
+    		OutputStream outputStream = socket.getOutputStream();
+    		PrintWriter outx = new PrintWriter(outputStream);
+    		outx.print(jsonText + "\r\n\r\n");
+    		outx.flush();
+    		InputStream inputStream = socket.getInputStream();
+    		InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+    		BufferedReader in = new BufferedReader(inputStreamReader);
+
+			System.out.println("socketw");
+
+    		String line;
+    		while ((line = in.readLine()) != null) {
+
+    		  System.out.println(line);
+		  	  modifiedSentence = line;
+
+    		}//*************************************
+
+			outputStream.close();
+   			outx.close();
+    		in.close();
+    		socket.close();
+
+
+			JSONParser parser = new JSONParser();
+			Object obj = parser.parse(modifiedSentence);
+			JSONObject jsonObject = (JSONObject) obj;
+  
+			String response = (String) jsonObject.get("response");
+			String message = (String) jsonObject.get("message");
+			System.out.println("JSON " + response);
+
+			if(!response.equals("0")){
+
+				Object objxl = parser.parse(message);
+				JSONObject jsonObjectxl = (JSONObject) objxl;
+
+				System.out.println("Block Package Size: " + jsonObjectxl.size());
+
+				return message;
+
+			}//if
+			else{
+
+				//JOptionPane.showMessageDialog(null, "STALE BLOCK");
+				System.out.println("BLOCK STALE");
+				//update_stale_api();
+
+				return "N";
+
+			}//**
+
+		}catch(Exception e){ 
+
+			e.printStackTrace(); 
+			System.out.println("Cannot find node!"); 
+			JsonSentence = "0"; 
+			peer_net_api.connection_active = 0; 
+			peer_net_api.tor_active = 0; 
+
+		}
+
+		//peer_net_api.api_in_use = 0;
+
+		return JsonSentence;
+
+	}//***********************************************************************************************
+
+
+
+
+
+
+
+
+    public String update_block_api(String unconfirmed_id){//*********************************************************
+
+    	String responsex = new String("1");
+
+    	//while(true){
+
+	    	System.out.println("SEND ID BACK");
+			//JOptionPane.showMessageDialog(null, "SEND ID BACK " + unconfirmed_id.length());
+
+			String jsonText = new String("");
+
+
+			try{
+
+				JSONObject obj = new JSONObject();
+				obj.put("request", "set_new_block");
+				obj.put("password", "1234");
+				obj.put("item_array", unconfirmed_id);
+
+				StringWriter out = new StringWriter();
+				obj.writeJSONString(out);
+				jsonText = out.toString();
+				System.out.println(jsonText);
+
+			}catch(Exception e){e.printStackTrace(); System.out.println("JSON ERROR"); JOptionPane.showMessageDialog(null, e.getMessage());}
+
+
+			String sentence;   
+			String modifiedSentence = new String();   
+
+			try{
+
+				BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
+				//System.out.println(">>> " + "localhost" + " " + "55556");
+				Socket clientSocket = new Socket("localhost", peer_net_api.api_port);   
+				DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+				BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
+				sentence = jsonText;  
+				outToServer.writeBytes(sentence + '\n');   
+				modifiedSentence = inFromServer.readLine();   
+				System.out.println("FROM SERVER: " + modifiedSentence);
+				clientSocket.close();
+
+
+				JSONParser parser = new JSONParser();
+
+				Object obj = parser.parse(modifiedSentence);
+				JSONObject jsonObject = (JSONObject) obj;
+		  
+				String message = (String) jsonObject.get("message");
+
+				System.out.println("message " + message);
+
+				//if(message.equals("1")){break;}
+
+				responsex = message;
+
+				//JOptionPane.showMessageDialog(null, "message " + message);
+
+				//break;
+
+
+			}catch(Exception e){
+
+				e.printStackTrace(); 
+				System.out.println("API SERVER OFFLINE!"); 
+				modifiedSentence = "API SERVER OFFLINE!";
+				responsex = "error";
+				//JOptionPane.showMessageDialog(null, e.getMessage());
+
+			}//*****************
+
+			//try{Thread.sleep(2000);} catch (InterruptedException e){}
+
+		//}//while
+
+		return responsex;
+
+    }//*******************************************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+    public String update_block_api_n(String unconfirmed_id){//*********************************************************
+
+    	String responsex = new String("1");
+
+    	//while(true){
+
+	    	System.out.println("SEND ID BACK");
+			//JOptionPane.showMessageDialog(null, "SEND ID BACK " + unconfirmed_id.length());
+
+			String jsonText = new String("");
+
+
+			try{
+
+				JSONObject obj = new JSONObject();
+				obj.put("request", "set_new_test_block");
+				obj.put("password", "1234");
+				obj.put("item_array", unconfirmed_id);
+
+				StringWriter out = new StringWriter();
+				obj.writeJSONString(out);
+				jsonText = out.toString();
+				System.out.println(jsonText);
+
+			}catch(Exception e){e.printStackTrace(); System.out.println("JSON ERROR"); JOptionPane.showMessageDialog(null, e.getMessage());}
+
+
+			String sentence;   
+			String modifiedSentence = new String();   
+
+			try{
+
+				BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
+				//System.out.println(">>> " + "localhost" + " " + "55556");
+				Socket clientSocket = new Socket("localhost", peer_net_api.api_port);   
+				DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+				BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
+				sentence = jsonText;  
+				outToServer.writeBytes(sentence + '\n');   
+				modifiedSentence = inFromServer.readLine();   
+				System.out.println("FROM SERVER: " + modifiedSentence);
+				clientSocket.close();
+
+
+				JSONParser parser = new JSONParser();
+
+				Object obj = parser.parse(modifiedSentence);
+				JSONObject jsonObject = (JSONObject) obj;
+		  
+				String message = (String) jsonObject.get("message");
+
+				System.out.println("message " + message);
+
+				//if(message.equals("1")){break;}
+
+				responsex = message;
+
+				//JOptionPane.showMessageDialog(null, "message " + message);
+
+				//break;
+
+
+			}catch(Exception e){
+
+				e.printStackTrace(); 
+				System.out.println("API SERVER OFFLINE!"); 
+				modifiedSentence = "API SERVER OFFLINE!";
+				responsex = "error";
+				//JOptionPane.showMessageDialog(null, e.getMessage());
+
+			}//*****************
+
+			//try{Thread.sleep(2000);} catch (InterruptedException e){}
+
+		//}//while
+
+		return responsex;
+
+    }//*******************************************************************************************************************************************
+
+
+
+
+
+
+    public String update_stale_api(){//*********************************************************
+
+    	String responsex = new String("1");
+
+    	//while(true){
+
+	    	System.out.println("SEND ID BACK");
+			//JOptionPane.showMessageDialog(null, "SEND ID BACK " + unconfirmed_id.length());
+
+			String jsonText = new String("");
+
+
+			try{
+
+				JSONObject obj = new JSONObject();
+				obj.put("request", "set_stale_block");
+				obj.put("password", "1234");
+				//obj.put("item_array", unconfirmed_id);
+
+				StringWriter out = new StringWriter();
+				obj.writeJSONString(out);
+				jsonText = out.toString();
+				System.out.println(jsonText);
+
+			}catch(Exception e){e.printStackTrace(); System.out.println("JSON ERROR"); JOptionPane.showMessageDialog(null, e.getMessage());}
+
+
+			String sentence;   
+			String modifiedSentence = new String();   
+
+			try{
+
+				BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
+				//System.out.println(">>> " + "localhost" + " " + "55556");
+				Socket clientSocket = new Socket("localhost", peer_net_api.api_port);   
+				DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+				BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
+				sentence = jsonText;  
+				outToServer.writeBytes(sentence + '\n');   
+				modifiedSentence = inFromServer.readLine();   
+				System.out.println("FROM SERVER: " + modifiedSentence);
+				clientSocket.close();
+
+
+				JSONParser parser = new JSONParser();
+
+				Object obj = parser.parse(modifiedSentence);
+				JSONObject jsonObject = (JSONObject) obj;
+		  
+				String message = (String) jsonObject.get("message");
+
+				System.out.println("message " + message);
+
+				//if(message.equals("1")){break;}
+
+				responsex = message;
+
+				//JOptionPane.showMessageDialog(null, "message " + message);
+
+				//break;
+
+
+			}catch(Exception e){
+
+				e.printStackTrace(); 
+				System.out.println("API SERVER OFFLINE!"); 
+				modifiedSentence = "API SERVER OFFLINE!";
+				responsex = "error";
+				//JOptionPane.showMessageDialog(null, e.getMessage());
+
+			}//*****************
+
+			//try{Thread.sleep(2000);} catch (InterruptedException e){}
+
+		//}//while
+
+		return responsex;
+
+    }//*******************************************************************************************************************************************
 
 
 
@@ -1348,40 +1796,9 @@ public String peer_start(int peer_id){//****************************************
 
 				JsonSentence = "active";
 
-				Object obj2 = parser.parse(message);
-				JSONObject jsonObject2 = (JSONObject) obj2;
-  
-				String update_token[] = new String[peer_net_api.listing_size];
+				String test2 = update_unconfirmed_api(message);
 
-    			for (int loop = 0; loop < peer_net_api.listing_size; loop++){//************
-
-					update_token[loop] = (String) jsonObject2.get(Integer.toString(loop));
-					System.out.println("convert " + update_token[loop]);
-
-				}//*******************************************************************
-
-
-            	int test_db = 0;
-				while(peer_net_api.database_in_use == 1){
-
-    				System.out.println("Database in use...rruu");
-					try{Thread.sleep(1000);} catch (InterruptedException e){}
-					test_db++;
-					if(test_db > 20){break;}
-
-    			}//*********************************
-
-
-        		//get the last token
-        		krypton_database_get_token getxt = new krypton_database_get_token();
-        		String req_id = update_token[0];
-        		String old_token[] = new String[peer_net_api.listing_size];
-        		old_token = getxt.get_token(req_id);
-
-        		krypton_update_token_remote remotexu2 = new krypton_update_token_remote();
-				boolean test2 = remotexu2.update(update_token, old_token);
-
-				if(test2){System.out.println("ADDED!"); krypton_database_load reloadx = new krypton_database_load();}
+				if(test2.equals("1")){System.out.println("ADDED!");}
 
 			}//***********************
 			else{JsonSentence = "error";}
@@ -1402,6 +1819,89 @@ public String peer_start(int peer_id){//****************************************
 		return JsonSentence;
 
 	}//***********************************************************************************************
+
+
+
+
+    public String update_unconfirmed_api(String unconfirmed_id){//*********************************************************
+
+    	String responsex = new String("1");
+
+    	//while(true){
+
+	    	System.out.println("SEND ID BACK");
+			//JOptionPane.showMessageDialog(null, "SEND ID BACK " + unconfirmed_id.length());
+
+			String jsonText = new String("");
+
+
+			try{
+
+				JSONObject obj = new JSONObject();
+				obj.put("request", "set_new_unconfirmed_block");
+				obj.put("password", "1234");
+				obj.put("item_array", unconfirmed_id);
+
+				StringWriter out = new StringWriter();
+				obj.writeJSONString(out);
+				jsonText = out.toString();
+				System.out.println(jsonText);
+
+			}catch(Exception e){e.printStackTrace(); System.out.println("JSON ERROR"); JOptionPane.showMessageDialog(null, e.getMessage());}
+
+
+			String sentence;   
+			String modifiedSentence = new String();   
+
+			try{
+
+				BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
+				//System.out.println(">>> " + "localhost" + " " + "55556");
+				Socket clientSocket = new Socket("localhost", peer_net_api.api_port);   
+				DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+				BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
+				sentence = jsonText;  
+				outToServer.writeBytes(sentence + '\n');   
+				modifiedSentence = inFromServer.readLine();   
+				System.out.println("FROM SERVER: " + modifiedSentence);
+				clientSocket.close();
+
+
+				JSONParser parser = new JSONParser();
+
+				Object obj = parser.parse(modifiedSentence);
+				JSONObject jsonObject = (JSONObject) obj;
+		  
+				String message = (String) jsonObject.get("message");
+
+				System.out.println("message " + message);
+
+				//if(message.equals("1")){break;}
+
+				responsex = message;
+
+				//JOptionPane.showMessageDialog(null, "message " + message);
+
+				//break;
+
+
+			}catch(Exception e){
+
+				e.printStackTrace(); 
+				System.out.println("API SERVER OFFLINE!"); 
+				modifiedSentence = "API SERVER OFFLINE!";
+				responsex = "error";
+				//JOptionPane.showMessageDialog(null, e.getMessage());
+
+			}//*****************
+
+			//try{Thread.sleep(2000);} catch (InterruptedException e){}
+
+		//}//while
+
+		return responsex;
+
+    }//*******************************************************************************************************************************************
 
 
 

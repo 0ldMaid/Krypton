@@ -119,7 +119,7 @@ edit_transfer_item(){//****************************
 	headerb5_l.setPreferredSize(new Dimension(355, 20));
 	headerb6_l.setPreferredSize(new Dimension(255, 20));
 
-	System.out.println("base58_id " + network.base58_id);
+	//System.out.println("base58_id " + network.base58_id);
 
 	headerb2_l.setText("You have " + Integer.toString(network.database_listings_owner) + " token(s)");
 	headerb2_l.setFont(network.f_01);
@@ -253,6 +253,7 @@ edit_transfer_item(){//****************************
     		System.out.println("Database in use... get_token transfer");
 			try{Thread.sleep(1000);} catch (InterruptedException e){}
 			test_db++;
+			if(test_db > network.database_time_out){break;}
 
     	}//*********************************
 
@@ -261,7 +262,7 @@ edit_transfer_item(){//****************************
 
 		return token1;
 
-	}
+	}//****************************************
 
 
 

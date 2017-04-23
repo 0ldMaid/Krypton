@@ -49,42 +49,139 @@ public class krypton_database_get_token_fmh{
 
 
 
-                System.out.println("GET TOKEN FROM MINING HASH");
+            System.out.println("GET TOKEN FROM MINING HASH");
 
+
+
+            for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
+
+                token_ssp2[loop1] = new String("error");
+
+            }//********************************************************************
+
+
+
+
+
+
+            boolean found_item = false;
+
+            int id_mining = -1;
+
+
+
+            krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            krypton_database_driver.s.setMaxRows(1); 
+            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM mining_db WHERE mining_old_block='" + id + "' ORDER BY mining_date ASC");
+
+            ix0 = 0;
+            while(krypton_database_driver.rs.next()){
+
+                for(int loop1 = 0; loop1 < network.miningx_size; loop1++){//***********
+
+                    token_ssp2[loop1] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
+
+                }//********************************************************************
+
+                id_mining = krypton_database_driver.rs.getInt(2);
+                found_item = true;
+
+            }//while
+
+        
+            System.out.println("found_item " + found_item);
+
+
+
+
+
+
+            System.out.println("Load listings_db... get token FHM");
+
+            //Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            krypton_database_driver.s.setMaxRows(1); 
+            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM listings_db WHERE id=" + id_mining + " ORDER BY id ASC");
+
+	        ix0 = 0;
+	        while(krypton_database_driver.rs.next()){
 
 
                 for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
 
-                    token_ssp2[loop1] = new String("error");
+                    token_ssp2[loop1 + network.miningx_size] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
 
                 }//********************************************************************
 
+                found_item = true;
+
+	        }//while
+
+	    
+	        System.out.println("found_item " + found_item);
 
 
 
 
 
-                boolean found_item = false;
-
-                int id_mining = -1;
 
 
+            //if the item is too old send them the first block
+            if(!found_item){
 
-                krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                token_ssp2 = null;
+
+            }//*************
+
+
+            //if the item is too old send them the first block
+            if(!found_item && 1 == 2){
+
+
+                id_mining = -1;
+
+
+                System.out.println("Load mining_db first item..." );
+
                 krypton_database_driver.s.setMaxRows(1); 
-                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM mining_db WHERE mining_old_block='" + id + "' ORDER BY mining_date ASC");
+                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM mining_db ORDER BY mining_date ASC");
 
                 ix0 = 0;
                 while(krypton_database_driver.rs.next()){
 
-                  for(int loop1 = 0; loop1 < network.miningx_size; loop1++){//***********
 
-                    token_ssp2[loop1] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
+                    for(int loop1 = 0; loop1 < network.miningx_size; loop1++){//***********
 
-                  }//********************************************************************
+                        token_ssp2[loop1] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
 
-                  id_mining = krypton_database_driver.rs.getInt(2);
-                  found_item = true;
+                    }//********************************************************************
+
+                    id_mining = krypton_database_driver.rs.getInt(2);
+                    found_item = true;
+
+                }//while
+
+
+
+
+
+
+                System.out.println("Load mining_db first item..." );
+
+                krypton_database_driver.s.setMaxRows(1); 
+                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM listings_db WHERE id=" + id_mining);
+
+                ix0 = 0;
+                while(krypton_database_driver.rs.next()){
+
+
+                    for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
+
+                        token_ssp2[loop1 + network.miningx_size] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
+
+                    }//********************************************************************
+
+                    found_item = true;
 
                 }//while
 
@@ -94,113 +191,19 @@ public class krypton_database_get_token_fmh{
 
 
 
-
-
-                System.out.println("Load listings_db... get token FHM");
-
-                //Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                krypton_database_driver.s.setMaxRows(1); 
-                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM listings_db WHERE id=" + id_mining + " ORDER BY id ASC");
-
-	            ix0 = 0;
-	            while(krypton_database_driver.rs.next()){
-
-
-                  for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
-
-                    token_ssp2[loop1 + network.miningx_size] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
-
-                  }//********************************************************************
-
-                  found_item = true;
-
-	            }//while
-
-	    
-	            System.out.println("found_item " + found_item);
+            }//*************
 
 
 
 
-
-
-
-
-
-
-
-
-                //if the item is too old send them the first block
-                if(!found_item){
-
-
-                    id_mining = -1;
-
-
-                    System.out.println("Load mining_db first item..." );
-
-                    krypton_database_driver.s.setMaxRows(1); 
-                    krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM mining_db ORDER BY mining_date ASC");
-
-                    ix0 = 0;
-                    while(krypton_database_driver.rs.next()){
-
-
-                        for(int loop1 = 0; loop1 < network.miningx_size; loop1++){//***********
-
-                            token_ssp2[loop1] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
-
-                        }//********************************************************************
-
-                        id_mining = krypton_database_driver.rs.getInt(2);
-                        found_item = true;
-
-                    }//while
-
-
-
-
-
-
-                    System.out.println("Load mining_db first item..." );
-
-                    krypton_database_driver.s.setMaxRows(1); 
-                    krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM listings_db WHERE id=" + id_mining);
-
-                    ix0 = 0;
-                    while(krypton_database_driver.rs.next()){
-
-
-                        for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
-
-                            token_ssp2[loop1 + network.miningx_size] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
-
-                        }//********************************************************************
-
-                        found_item = true;
-
-                    }//while
-
-        
-                    System.out.println("found_item " + found_item);
-
-
-
-
-                }//*************
-
-
-
-
-                krypton_database_driver.conn.commit();
-                System.out.println("Committed the transaction");
+            krypton_database_driver.conn.commit();
+            System.out.println("Committed the transaction");
 
 
         }catch(Exception e){e.printStackTrace();}
 
-    network.database_in_use = 0;
-    return token_ssp2;
+        network.database_in_use = 0;
+        return token_ssp2;
 
     }//load
 

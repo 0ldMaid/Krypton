@@ -134,7 +134,7 @@ edit_seller_account(){//****************************
 	headerb5_l.setPreferredSize(new Dimension(355, 10));
 	headerb6_l.setPreferredSize(new Dimension(255, 20));
 
-	System.out.println("base58_id " + network.base58_id);
+	//System.out.println("base58_id " + network.base58_id);
 
 
 

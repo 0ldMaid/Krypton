@@ -494,11 +494,12 @@ edit_item(){//****************************
     		System.out.println("Database in use... get_token edit");
 			try{Thread.sleep(1000);} catch (InterruptedException e){}
 			test_db++;
+			if(test_db > network.database_time_out){break;}
 
     	}//*********************************
 
 		krypton_database_get_token tokenx = new krypton_database_get_token();
-		token1 = tokenx.get_token(x);
+		token1 = tokenx.get_token2(x);
 
 		return token1;
 

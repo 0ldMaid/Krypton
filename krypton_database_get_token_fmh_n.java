@@ -26,7 +26,7 @@ import java.util.List;
 
 
 
-public class krypton_database_get_token_fmh_x{
+public class krypton_database_get_token_fmh_n{
 
 
     String[][] token_ssp2;
@@ -50,7 +50,7 @@ public class krypton_database_get_token_fmh_x{
 
 
 
-            System.out.println("GET TOKEN FROM MINING HASH X");
+            System.out.println("GET TOKEN FROM MINING HASH N");
 
 
 
@@ -97,7 +97,7 @@ public class krypton_database_get_token_fmh_x{
 
             System.out.println("id_mining " + id_mining);
 
-            if(id_mining > 0){
+            if(id_mining > network.package_block_size){
 
 
 
@@ -106,7 +106,7 @@ public class krypton_database_get_token_fmh_x{
 
                 krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                 krypton_database_driver.s.setMaxRows(network.package_block_size); 
-                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM mining_db WHERE xd > " + id_mining + " ORDER BY xd ASC");
+                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM mining_db WHERE xd < " + id_mining + " ORDER BY xd DESC");
 
                 ix0 = 0;
                 while(krypton_database_driver.rs.next()){
@@ -124,7 +124,7 @@ public class krypton_database_get_token_fmh_x{
                 }//while
 
 
-
+                //JOptionPane.showMessageDialog(null, "Could not add block! N ");
 
 
                 System.out.println("ix0 " + ix0);
@@ -137,7 +137,7 @@ public class krypton_database_get_token_fmh_x{
 
 
 
-                System.out.println("Load listings_db... get token FHMX" );
+                System.out.println("Load listings_db... get token FHMN" );
 
                 id = Integer.toString(id_mining);
 
@@ -163,7 +163,7 @@ public class krypton_database_get_token_fmh_x{
                 int ixp0 = 0;
 
                 System.out.println("cmdx " + cmdx);
-                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM listings_db WHERE " + cmdx + " ORDER BY xd ASC");
+                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM listings_db WHERE " + cmdx + " ORDER BY xd DESC");
 
                 while(krypton_database_driver.rs.next()){
 

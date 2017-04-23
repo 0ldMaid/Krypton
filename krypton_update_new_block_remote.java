@@ -58,6 +58,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.math.BigInteger;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.ParseException;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.JSONValue;
+
 
 
 public class krypton_update_new_block_remote{
@@ -104,13 +110,14 @@ public class krypton_update_new_block_remote{
             String prev_hash_id = tokenx[1];//old block hash
             String hash_id = mining_id[7];
             String sig_id = mining_id[8];
-
+            String packagex = mining_id[9];
 
 
 
 
             System.out.println("Test Mining... " + move_item[0] + " " + ID);
 
+            boolean testm0 = false;
             boolean testm1 = false;
             boolean testm2 = false;
             boolean testm3 = false;
@@ -119,6 +126,108 @@ public class krypton_update_new_block_remote{
             boolean testm6 = false;
             boolean testm7 = false;
             boolean testm8 = false;
+
+
+
+
+
+
+            //decode packages
+            boolean is_in_package = false;
+            boolean last_is_package = false;
+            boolean this_is_package = false;
+            JSONArray jsonObjectx_last = null;
+            JSONArray jsonObjectx_this = null;
+            int last_package_sizex = 0;
+            int this_package_sizex = 0;
+
+            if(packagex.length() < 5){this_is_package = false;}
+            else{
+
+                this_is_package = true;
+
+                try{
+
+                    JSONParser parserx = new JSONParser();
+                    Object objx = parserx.parse(packagex);
+                    jsonObjectx_this = (JSONArray) objx;
+
+                    this_package_sizex = jsonObjectx_this.size();
+
+                }catch(Exception e){this_is_package = false;}
+
+            }//***
+
+            if(network.last_package_x.length() < 5){last_is_package = false;}
+            else{
+
+                last_is_package = true;
+
+                try{
+
+                    JSONParser parserx = new JSONParser();
+                    Object objx = parserx.parse(network.last_package_x);
+                    jsonObjectx_last = (JSONArray) objx;
+
+                    last_package_sizex = jsonObjectx_last.size();
+
+                }catch(Exception e){last_is_package = false;}
+
+
+            }//***
+
+
+
+
+            try{
+
+                System.out.println("last package " + network.last_package_x);
+                System.out.println("this package " + packagex);
+
+                System.out.println("Last Package " + last_package_sizex);
+                System.out.println("This Package " + this_package_sizex);
+
+                //test size
+                if(this_package_sizex == 0 && last_package_sizex == 0){testm0 = true;}//normal opperation
+                else if(this_package_sizex == 0 && last_package_sizex == 1){testm0 = true;}//package just ended
+                else if(this_package_sizex <= network.block_compress_size && last_package_sizex == 0){
+
+                    if(this_is_package){
+
+                        System.out.println("First package block");
+                        System.out.println("id1 " + jsonObjectx_this.get(0));
+                        System.out.println("id2 " + ID);
+
+                        if(jsonObjectx_this.get(0).equals(ID)){testm0 = true;}
+                        else{testm0 = false;}
+
+                    }//*****************
+                    else{testm0 = false;}
+
+                }//***********************************************************************************
+                else if((this_package_sizex + 1) == last_package_sizex && this_package_sizex <= network.block_compress_size){
+
+                    if(this_is_package){
+
+                        is_in_package = true;
+
+                        System.out.println("Middle package block");
+                        System.out.println("id0 " + jsonObjectx_last.get(1));
+                        System.out.println("id1 " + jsonObjectx_this.get(0));
+                        System.out.println("id2 " + ID);
+
+                        if(jsonObjectx_this.get(0).equals(ID) && jsonObjectx_last.get(1).equals(ID)){testm0 = true;}
+                        else{testm0 = false;}
+
+                    }//*****************
+                    else{testm0 = false;}
+
+                }//**********************************************************************************************************
+                else{testm0 = false;}
+
+            }catch(Exception e){testm0 = false;}
+
+            System.out.println("testm0 " + testm0);
 
 
 
@@ -133,6 +242,9 @@ public class krypton_update_new_block_remote{
             System.out.println("testm1 " + testm1);
 
 
+
+
+
             System.out.println(mining_old_block);
             System.out.println(network.last_block_mining_idx);
 
@@ -144,7 +256,7 @@ public class krypton_update_new_block_remote{
 
 
             //String encode = encode_date + old_block_mining_hash + new_block_hash + Integer.toString(noosex);
-            String encode = mining_date + mining_old_block + hash_id + mining_noose;
+            String encode = mining_date + mining_old_block + hash_id + mining_noose + packagex;
 
             System.out.println("mining_date " + mining_date);
             System.out.println("mining_old_block " + mining_old_block);
@@ -155,7 +267,6 @@ public class krypton_update_new_block_remote{
 
 
                 try{
-
 
                     byte[] sha256_1 = MessageDigest.getInstance("SHA-256").digest(encode.getBytes());
                     //System.out.println("SHA1 " + bytesToHex(sha256_1));
@@ -172,7 +283,13 @@ public class krypton_update_new_block_remote{
 
                     encode = bytesToHex(sha256_1);
 
-                    if(result < network.difficultyx && result > 0){testm3 = true;}
+                    long package_difficultyx = (long) 0;
+
+                    //if we are building a package then the other items do not need a hard difficulty. 
+                    if(is_in_package){package_difficultyx = network.difficultyx_limit;}
+                    else{package_difficultyx = network.difficultyx;}
+
+                    if(result < package_difficultyx && result > 0){testm3 = true;}
 
                 }catch(Exception e){e.printStackTrace();}
 
@@ -278,7 +395,7 @@ public class krypton_update_new_block_remote{
 
                             for (int i = 0; i < len; i += 2) {
 
-                                            data[i / 2] = (byte) ((Character.digit(base58.charAt(i), 16) << 4) + Character.digit(base58.charAt(i+1), 16));
+                                data[i / 2] = (byte) ((Character.digit(base58.charAt(i), 16) << 4) + Character.digit(base58.charAt(i+1), 16));
 
                             }//*******************************
 
@@ -315,6 +432,7 @@ public class krypton_update_new_block_remote{
 
                 int last_test = 0;
 
+                if(testm0){last_test++;}
                 if(testm1){last_test++;}
                 if(testm2){last_test++;}
                 if(testm3){last_test++;}
@@ -327,12 +445,13 @@ public class krypton_update_new_block_remote{
                 System.out.println("last_test " + last_test);
 
 
+                //the buffered block is used or useless get a new one.
+                network.mining_block_ready = 0;
+
+                //JOptionPane.showMessageDialog(null, "Package test");
 
 
-                    if(last_test == 8){//********************************************************************************************
-
-                        //the buffered block is used or useless get a new one.
-                        network.mining_block_ready = 0;
+                    if(last_test == 9){//********************************************************************************************
 
                         //int set_negitive = (Integer) (Integer.parseInt(move_item[0]) * -1);
 
@@ -389,7 +508,7 @@ public class krypton_update_new_block_remote{
 
                         numrows = 0;
                         ps = null;
-                        ps = krypton_database_driver.conn.prepareStatement("INSERT INTO mining_db(link_id, mining_date, mining_difficulty, mining_noose, mining_old_block, mining_new_block, previous_hash_id, hash_id, sig_id) values(?,?,?,?,?,?,?,?,?)");
+                        ps = krypton_database_driver.conn.prepareStatement("INSERT INTO mining_db(link_id, mining_date, mining_difficulty, mining_noose, mining_old_block, mining_new_block, previous_hash_id, hash_id, sig_id, package) values(?,?,?,?,?,?,?,?,?,?)");
 
                         ps.setInt(1, Integer.parseInt(move_item[0]));
                         ps.setString(2, mining_date);
@@ -400,6 +519,7 @@ public class krypton_update_new_block_remote{
                         ps.setString(7, prev_hash_id);
                         ps.setString(8, hash_id);
                         ps.setString(9, sig_id);
+                        ps.setString(10, packagex);
 
                         System.out.println("hash_id " + hash_id);
                         System.out.println("sig_id " + sig_id);
@@ -423,9 +543,7 @@ public class krypton_update_new_block_remote{
 
 
                     }//if************************************************************************************************************
-                    else{System.out.println("TEST1 TEST2 FAIL...");}
-
-
+                    else{System.out.println("TEST1 TEST2 FAIL..."); token_updated = false;}
 
 
 
@@ -439,12 +557,7 @@ public class krypton_update_new_block_remote{
                 System.out.println("network.unconfirmed TOTAL " + network.database_unconfirmed_total);
 
 
-
-
                 System.out.println("DONE");
-
-
-
 
 
                 krypton_database_driver.conn.commit();
@@ -452,7 +565,7 @@ public class krypton_update_new_block_remote{
 
 
 
-        }catch(Exception e){e.printStackTrace();}
+        }catch(Exception e){e.printStackTrace(); network.mining_block_ready = 0;}
 
 
 

@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.text.*;  
 import java.lang.Object.*;  
 import java.net.*;
+import java.util.*;
 
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.KeyPair;
@@ -20,6 +21,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import java.security.MessageDigest;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.ParseException;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.JSONValue;
 
 import org.spongycastle.util.encoders.Base64;
 import org.spongycastle.crypto.digests.SHA256Digest;
@@ -37,7 +44,10 @@ Toolkit toolkit;
 final protected static char[] hexArray = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
 
 int noosex = 0;
+int package_block_stage = 0;
 String encode_hash = new String("");
+
+long package_difficultyx = (long) 0;
 
 static String encode = new String("");
 static String encode2 = new String("");
@@ -46,14 +56,21 @@ static String new_block_id = new String("");
 static String new_block_hash = new String("");
 static String old_block_mining_hash = new String("");
 static String mining_noose = new String("");
+static String block_package = new String();
+
+String package_string = new String("");
 
 boolean mining1 = true;//should we mine at all?
 boolean mining2 = true;//this is to test if there is anything to mine for.
 static boolean mining3 = true;//database is working.
 static int mining_stop = 0;//turn off and restart...
 boolean mining_old_chain = false;//move the chain along....
+boolean build_package = false;//should we mind for 1 block or a package 
 
 String tokenx[] = new String[network.listing_size];
+
+String package_listings[][] = new String[network.listing_size][network.block_compress_size];
+String package_miningxs[][] = new String[network.miningx_size][network.block_compress_size];
 
 
 public mining(){
@@ -74,115 +91,197 @@ public mining(){
 
 
 
-public static String bytesToHex(byte[] bytes) {
-    char[] hexChars = new char[bytes.length * 2];
+	public static String bytesToHex(byte[] bytes) {
+	    char[] hexChars = new char[bytes.length * 2];
 
-    for ( int j = 0; j < bytes.length; j++ ) {
+	    for ( int j = 0; j < bytes.length; j++ ) {
 
-        int v = bytes[j] & 0xFF;
-        hexChars[j * 2] = hexArray[v >>> 4];
-        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+	        int v = bytes[j] & 0xFF;
+	        hexChars[j * 2] = hexArray[v >>> 4];
+	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
 
-    }//***************************************
+	    }//***************************************
 
-    return new String(hexChars);
-}//********************************************
-
-
+	    return new String(hexChars);
+	}//********************************************
 
 
 
 
 
 
-class RemindTask_mining extends TimerTask{
-Runtime rxrunti = Runtime.getRuntime();
-
-public void run(){//************************************************************************************
-
-	System.out.println("Start Mining");
-
-	//this always stays on
-	while(mining1){
-
-		mining_stop = 0;
-		if(mining2 && mining3){
-			
-			if(network.database_in_use != 1 && network.xmining == 1){new_hash();}
-
-		}//if******************
 
 
-		System.out.println("network.xmining " + network.xmining);
-		System.out.println("network.database_listings_total " + network.database_listings_total);
+	class RemindTask_mining extends TimerTask{
+	Runtime rxrunti = Runtime.getRuntime();
 
-		//mining test
-		while(network.xmining == 1 && network.database_listings_total >= network.hard_token_limit){
-		//System.out.println(">>>");
+	public void run(){//************************************************************************************
 
+		System.out.println("Start Mining");
 
-			//someone already found this block or user abort
-			if(mining_stop == 1){System.out.println("Break mining stop 1"); break;}//network.status_x2.setIcon(network.imx0);
-			//someone already found this block
+		//this always stays on
+		while(mining1){
 
-			//testings for something to mine for
-			if(!mining2){System.out.println("Break mining stop 2 mining 2"); break;}//network.status_x2.setIcon(network.imx0);
-			//testings for something to mine for
+			build_package = false;
 
-			//testings for something to mine for
-			if(!mining3){System.out.println("Break mining stop 3 mining 3"); break;}//network.status_x2.setIcon(network.imx0);
-			//testings for something to mine for
+			mining_stop = 0;
 
-			//testings for internet
-			if(network.tor_active == 0 && network.new_database_start == 0){System.out.println("mining net_tor 0"); break;}//network.status_x2.setIcon(network.imx0); 
-			//testings for internet
+			if(mining2 && mining3){
+				
+				if(network.database_in_use != 1 && network.xmining == 1){
 
-			//testings for internet
-			//if(network.connection_active == 0 && network.new_database_start == 0){System.out.println("mining net_client 0"); break;}//network.status_x2.setIcon(network.imx0); 
-			//testings for internet
+					if(network.database_unconfirmed_total >= network.block_compress_size && network.new_database_start == 0){
 
-			//testings for status
-			if(!network.blocks_uptodate){System.out.println("mining old blocks"); break;}//network.status_x2.setIcon(network.imx0);
-			//testings for status
+						System.out.println("Package mining");
 
-			//restarting
-			if(network.mining_block_ready == 1){System.out.println("Block is ready to send..."); break;}
-			//restarting
+						build_package = true;
+						package_block_stage = 0;
+						build_package_start();
 
+					}//******************************************************************************************************
+					else{
+					
+						//mine for 1 block
+						new_hash();
 
-			//turn on the icon
-			network.mining_status = 1;
+					}//**
 
-			//System.out.println("kkk");
+				}//******************************************************
 
-			mine();
-			try{Thread.sleep(network.mining_speed);} catch(InterruptedException e){e.printStackTrace();}
+			}//if******************
 
 
-		}//while**********************************************************************************
+			System.out.println("network.xmining " + network.xmining);
+			System.out.println("network.database_listings_total " + network.database_listings_total);
 
-		//JOptionPane.showMessageDialog(null, "Mining " + network.new_database_start);
-
-		network.mining_status = 0;
-
-		//if(!mining2){network.status_x2.setIcon(network.imx0);}
-		//else if(!mining3){network.status_x2.setIcon(network.imx0);}
-		//else if(network.peersx1 == 0){network.status_x2.setIcon(network.imx0);}
-		//else if(!krypton_net_client.blocks_uptodate){network.status_x2.setIcon(network.imx0);}
-		//else if(krypton_net_client.breakx2 > 130){network.status_x2.setIcon(network.imx0);}
-		//else if(mining_stop == 0 && network.xmining == 1){network.status_x2.setIcon(network.imx1);}
-		//else{network.status_x2.setIcon(network.imx0);}
-
-		try{Thread.sleep(10000);} catch (InterruptedException e){}
-
-	}//while*******
-
-}//runx*************************************************************************************************
-}//remindtask
+			//mining test
+			while(network.xmining == 1 && network.database_listings_total >= network.hard_token_limit){
+			//System.out.println(">>>");
 
 
+				//someone already found this block or user abort
+				if(mining_stop == 1){System.out.println("Break mining stop 1"); break;}//network.status_x2.setIcon(network.imx0);
+				//someone already found this block
+
+				//testings for something to mine for
+				if(!mining2){System.out.println("Break mining stop 2 mining 2"); break;}//network.status_x2.setIcon(network.imx0);
+				//testings for something to mine for
+
+				//testings for something to mine for
+				if(!mining3){System.out.println("Break mining stop 3 mining 3"); break;}//network.status_x2.setIcon(network.imx0);
+				//testings for something to mine for
+
+				//testings for internet
+				if(network.tor_active == 0 && network.new_database_start == 0){System.out.println("mining net_tor 0"); break;}//network.status_x2.setIcon(network.imx0); 
+				//testings for internet
+
+				//testings for internet
+				//if(network.connection_active == 0 && network.new_database_start == 0){System.out.println("mining net_client 0"); break;}//network.status_x2.setIcon(network.imx0); 
+				//testings for internet
+
+				//testings for status
+				if(!network.blocks_uptodate){System.out.println("mining old blocks"); break;}//network.status_x2.setIcon(network.imx0);
+				//testings for status
+
+				//restarting
+				if(network.mining_block_ready == 1 || network.mining_package_ready == 1){System.out.println("Block is ready to send..."); break;}
+				//restarting
 
 
+				//turn on the icon
+				network.mining_status = 1;
+
+				//System.out.println("kkk");
+
+				if(!build_package){mine();}
+				else{mine_package();}
+
+				try{Thread.sleep(network.mining_speed);} catch(InterruptedException e){e.printStackTrace();}
+
+
+			}//while**********************************************************************************
+
+			//JOptionPane.showMessageDialog(null, "Mining " + network.new_database_start);
+
+			network.mining_status = 0;
+
+			//if(!mining2){network.status_x2.setIcon(network.imx0);}
+			//else if(!mining3){network.status_x2.setIcon(network.imx0);}
+			//else if(network.peersx1 == 0){network.status_x2.setIcon(network.imx0);}
+			//else if(!krypton_net_client.blocks_uptodate){network.status_x2.setIcon(network.imx0);}
+			//else if(krypton_net_client.breakx2 > 130){network.status_x2.setIcon(network.imx0);}
+			//else if(mining_stop == 0 && network.xmining == 1){network.status_x2.setIcon(network.imx1);}
+			//else{network.status_x2.setIcon(network.imx0);}
+
+			try{Thread.sleep(10000);} catch (InterruptedException e){}
+
+		}//while*******
+
+	}//runx*************************************************************************************************
+	}//remindtask
+
+
+
+
+
+
+
+	public void build_package_start(){
+
+		System.out.println("Package setup...");
+
+		int test_db = 0;
+		while(network.database_in_use == 1){
+
+    		System.out.println("Database in use...mmh package");
+			try{Thread.sleep(1000);} catch(InterruptedException e){}
+			test_db++;
+			if(test_db > 20){break;}
+
+    	}//*********************************
+
+    	krypton_database_get_unconfirmed_package getp = new krypton_database_get_unconfirmed_package();
+    	package_listings = getp.get_tokens(network.block_compress_size);
+
+    	//JOptionPane.showMessageDialog(null, package_listings[0].length);
+
+    	old_block_mining_hash = network.last_block_mining_idx;
+
+    	build_package_2();
+
+	}//*******************************
+
+
+
+
+	public void build_package_2(){
+
+		LinkedList<String> list = new LinkedList<String>();
+
+    	for(int loop = package_block_stage; loop < package_listings[0].length; loop++){//************
+
+    		list.add(package_listings[0][loop]); 
+
+    	}//******************************************************************************************
+
+    	block_package = JSONValue.toJSONString(list);
+
+		encode_date = Long.toString(System.currentTimeMillis());
+		
+		System.out.println("get id " + package_listings[0][package_block_stage]);
+
+		mining_new_task new_x_task = new mining_new_task();
+		new_x_task.new_task(package_listings[0][package_block_stage]);
+
+		System.out.println("encode_date " + encode_date);
+		System.out.println("new_block_id " + new_block_id);
+		System.out.println("new_block_hash " + new_block_hash);
+		System.out.println("old_block_mining_hash " + old_block_mining_hash);
+		System.out.println("network.last_block_mining_idx " + network.last_block_mining_idx);
+
+		//JOptionPane.showMessageDialog(null, block_package);
+
+	}//***************************
 
 
 
@@ -198,7 +297,7 @@ public void run(){//************************************************************
 		while(network.database_in_use == 1){
 
     		System.out.println("Database in use...mmh");
-			try{Thread.sleep(1000);} catch (InterruptedException e){}
+			try{Thread.sleep(1000);} catch(InterruptedException e){}
 			test_db++;
 			if(test_db > 20){break;}
 
@@ -243,7 +342,6 @@ public void run(){//************************************************************
 
 			System.out.println("Standard mining");
 		
-
 			if(network.new_database_start == 0 && tests1 > 0){
 
 				System.out.println("");
@@ -258,6 +356,8 @@ public void run(){//************************************************************
 			old_block_mining_hash = network.last_block_mining_idx;
 
 			//krypton_database_print_blocks print = new krypton_database_print_blocks();
+
+			block_package = "";
 
 			System.out.println("encode_date " + encode_date);
 			System.out.println("new_block_id " + new_block_id);
@@ -283,6 +383,8 @@ public void run(){//************************************************************
 			old_block_mining_hash = network.last_block_mining_idx;
 
 			//krypton_database_print_blocks print = new krypton_database_print_blocks();
+
+			block_package = "";
 
 			System.out.println("encode_date " + encode_date);
 			System.out.println("new_block_id " + new_block_id);
@@ -312,13 +414,11 @@ public void run(){//************************************************************
 
 		encode_date = Long.toString(System.currentTimeMillis());
 
-		encode = encode_date + old_block_mining_hash + new_block_hash + Integer.toString(noosex);
+		encode = encode_date + old_block_mining_hash + new_block_hash + Integer.toString(noosex) + block_package;
 
 		mining_noose = Integer.toString(noosex);
 
 		
-
-
 		try{
 
 
@@ -341,7 +441,8 @@ public void run(){//************************************************************
 
 			if(result < network.difficultyx && result > 0){
 
-				try{update();}catch(Exception e){mining_stop = 1;}
+				try{update();}
+				catch(Exception e){mining_stop = 1;}
 
 			}//********************************************
 			else{noosex++;}
@@ -354,6 +455,96 @@ public void run(){//************************************************************
 
 
 	}//****************
+
+
+
+
+
+
+
+
+	public void mine_package(){
+
+		//System.out.println("Looking...");
+
+		encode_date = Long.toString(System.currentTimeMillis());
+
+		encode = encode_date + old_block_mining_hash + new_block_hash + Integer.toString(noosex) + block_package;
+
+		mining_noose = Integer.toString(noosex);
+
+		
+		try{
+
+
+
+			byte[] sha256_1 = MessageDigest.getInstance("SHA-256").digest(encode.getBytes());
+			//System.out.println("SHA1 " + bytesToHex(sha256_1));
+
+
+			ByteBuffer buffer = ByteBuffer.wrap(sha256_1);
+			buffer.order(ByteOrder.BIG_ENDIAN);  // if you want little-endian
+			long result = buffer.getLong();
+			//Double result2 = buffer.getDouble();
+
+			//System.out.println("value " + value);
+			//System.out.println("result " + result);
+			//System.out.println("result2 " + result2);
+			//System.out.println("SHA1 " + bytesToHex(sha256_1));
+
+			encode = bytesToHex(sha256_1);
+
+			//if we are building a package then the other items do not need a hard difficulty. 
+			if(package_block_stage == 0){package_difficultyx = network.difficultyx;}
+			else{package_difficultyx = network.difficultyx_limit;}
+
+			if(result < package_difficultyx && result > 0){
+
+				package_miningxs[0][package_block_stage] = package_listings[0][package_block_stage];
+            	package_miningxs[1][package_block_stage] = mining.encode_date;
+            	package_miningxs[2][package_block_stage] = Long.toString(package_difficultyx);
+            	package_miningxs[3][package_block_stage] = mining.mining_noose;
+            	package_miningxs[4][package_block_stage] = mining.old_block_mining_hash;
+            	package_miningxs[5][package_block_stage] = encode;
+            	package_miningxs[6][package_block_stage] = "";
+            	package_miningxs[7][package_block_stage] = new_block_hash;
+            	package_miningxs[8][package_block_stage] = package_listings[2][package_block_stage];
+            	package_miningxs[9][package_block_stage] = block_package;//+ all the other blocks in the package
+
+            	old_block_mining_hash = encode;
+
+				//JOptionPane.showMessageDialog(null, "FOUND!");
+
+				package_block_stage++;
+
+				if(package_block_stage >= package_listings[0].length){
+
+					//JOptionPane.showMessageDialog(null, "Package DONE!");
+
+					krypton_net_client.send_new_block_package(package_miningxs, package_listings);
+
+					try{Thread.sleep(30000);} catch (InterruptedException e){}
+
+					mining_stop = 1;//someone has found the block, go to the next task.
+
+				}//***************************************************
+				else{build_package_2();}
+
+
+			}//********************************************
+			else{noosex++;}
+
+
+		}catch(Exception e){e.printStackTrace(); mining_stop = 1;}
+
+	}//****************
+
+
+
+
+
+
+
 
 
 
@@ -397,7 +588,7 @@ public void run(){//************************************************************
 				//network.status_x1.setText("Found new block! (" + mining.new_block_id + ")");
 
             	String[] move_item = tokenx;
-            	String[] mining_item = new String[9];
+            	String[] mining_item = new String[network.miningx_size];
 
 				mining_item[0] = move_item[0];
             	mining_item[1] = mining.encode_date;
@@ -408,35 +599,39 @@ public void run(){//************************************************************
             	mining_item[6] = "";
             	mining_item[7] = new_block_hash;
             	mining_item[8] = move_item[2];
+            	mining_item[9] = block_package;//+ all the other blocks in the package
 
 
 					if(network.new_database_start == 0){
 
-							String testerx = new String("error");
+						String testerx = new String("error");
 
-							for (int loop = 0; loop < network.listing_size; loop++){//************
-								try{ if(move_item[loop].equals("0")){} }catch(Exception e){testerx = "1";}
-							}//*******************************************************************
+						for (int loop = 0; loop < network.listing_size; loop++){//************
+
+							try{ if(move_item[loop].equals("0")){} }
+							catch(Exception e){testerx = "1";}
+
+						}//*******************************************************************
 
 
-							int testxp = 0;
-							while(!testerx.equals("1")){
+						int testxp = 0;
+						while(!testerx.equals("1")){
 
-                                mining_stop = 1;//someone has found the block, go to the next task.
+                            mining_stop = 1;//someone has found the block, go to the next task.
 
-								System.out.println("Mining send new block update >>>>");
+							System.out.println("Mining send new block update >>>>");
 
-								String testg = krypton_net_client.send_new_block_update(mining_item, move_item);
-								System.out.println("testg " + testg);
+							String testg = krypton_net_client.send_new_block_update(mining_item, move_item);
+							System.out.println("testg " + testg);
 
-								if(testg.equals("1") || testg.equals("0")){System.out.println("BREAK"); break;}
-								if(testxp > 3){break;}
+							if(testg.equals("1") || testg.equals("0")){System.out.println("BREAK"); break;}
+							if(testxp > 3){break;}
 
-								try{Thread.sleep(30000);} catch (InterruptedException e){}
+							try{Thread.sleep(30000);} catch (InterruptedException e){}
 
-								testxp++;
+							testxp++;
 
-							}//while
+						}//while
 
 					}//*********************************
 					else{

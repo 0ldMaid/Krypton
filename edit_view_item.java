@@ -135,6 +135,7 @@ static JLabel item_seller_name = new JLabel("", JLabel.LEFT);
 static JLabel item_seller_url = new JLabel("", JLabel.LEFT);
 static JLabel item_seller_notes = new JLabel("", JLabel.LEFT);
 static JLabel item_seller_location = new JLabel("", JLabel.LEFT);
+static JLabel item_hash_id = new JLabel("", JLabel.LEFT);
 static JLabel item_site_url = new JLabel("", JLabel.LEFT);
 static JLabel picture_1 = new JLabel("", JLabel.LEFT);
 static JLabel item_total_on_hand = new JLabel("", JLabel.LEFT);
@@ -309,6 +310,9 @@ edit_view_item(){//****************************
 	item_seller_phone.setPreferredSize(new Dimension(630, 15));
 	item_seller_phone.setForeground(network.blackx);
 
+	item_hash_id.setPreferredSize(new Dimension(630, 15));
+	item_hash_id.setForeground(network.blackx);
+
 
 	item_verify.setPreferredSize(new Dimension(100, 20));
 	item_verify.setForeground(network.blackx);
@@ -330,17 +334,6 @@ edit_view_item(){//****************************
 
 
  
-
-
-
-
-
-
-
-
-
-
-
 
 
 	back.setPreferredSize(new Dimension(105, 20));
@@ -409,6 +402,7 @@ edit_view_item(){//****************************
 	jpk2b.add(item_seller_phone);
 	jpk2b.add(item_seller_url);
 	jpk2b.add(item_seller_location);
+	jpk2b.add(item_hash_id);
 
 
 
@@ -501,16 +495,17 @@ edit_view_item(){//****************************
     		System.out.println("Database in use... get_token view item");
 			try{Thread.sleep(1000);} catch (InterruptedException e){}
 			test_db++;
+			if(test_db > network.database_time_out){break;}
 
     	}//*********************************
 
 
 		krypton_database_get_token tokenx = new krypton_database_get_token();
-		token1 = tokenx.get_token(x);
+		token1 = tokenx.get_token2(x);
 
 		return token1;
 
-	}
+	}//******************************************
 
 
 
@@ -591,6 +586,7 @@ edit_view_item(){//****************************
 		item_seller_phone.setText("Seller phone: " + tokenx[66]);
 		item_seller_url.setText("Seller website: " + tokenx[68]);
 		item_seller_location.setText("Seller country location: " + tokenx[59]);
+		item_hash_id.setText("Listing HASH: " + tokenx[1]);
 
 
 		item_description.setMinimumSize(new Dimension(630, 100));
@@ -702,8 +698,6 @@ edit_view_item(){//****************************
 
 		}//***************
 
-
-
 	}//**********************
 
 
@@ -723,43 +717,37 @@ edit_view_item(){//****************************
 
 	public void run(){//************************************************************************************
 
-	try {
+		try{
 
+			Icon aicons = new ImageIcon(no_image);
+			item_picture.setIcon(aicons);
 
+	    	URL url = new URL(pic_url);
 
-		Icon aicons = new ImageIcon(no_image);
-		item_picture.setIcon(aicons);
+			Image image = java.awt.Toolkit.getDefaultToolkit().getDefaultToolkit().createImage(url);
 
+			Icon aicon = new ImageIcon(image);
+			item_picture.setIcon(aicon);
 
+			BufferedImage resizedImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = resizedImage.createGraphics();
+			g.drawImage(image, 0, 0, 200, 200, null);
+			//g.fillRect(10, 10, 10, 10);
 
-    	URL url = new URL(pic_url);
+			image = java.awt.Toolkit.getDefaultToolkit().getDefaultToolkit().createImage(resizedImage.getSource());
 
-		Image image = java.awt.Toolkit.getDefaultToolkit().getDefaultToolkit().createImage(url);
+			aicon = new ImageIcon(image);
+			item_picture.setIcon(aicon);
 
-		Icon aicon = new ImageIcon(image);
-		item_picture.setIcon(aicon);
+		}catch(Exception e){
 
+			//e.printStackTrace(); 
+			System.out.println("Error Cannot download image!");
 
-		BufferedImage resizedImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = resizedImage.createGraphics();
-		g.drawImage(image, 0, 0, 200, 200, null);
-		//g.fillRect(10, 10, 10, 10);
+			Icon aicon = new ImageIcon(no_image);
+			item_picture.setIcon(aicon);
 
-		image = java.awt.Toolkit.getDefaultToolkit().getDefaultToolkit().createImage(resizedImage.getSource());
-
-		aicon = new ImageIcon(image);
-		item_picture.setIcon(aicon);
-
-	}catch (Exception e) {
-
-		//e.printStackTrace(); 
-		System.out.println("Error Cannot download image!");
-
-		Icon aicon = new ImageIcon(no_image);
-		item_picture.setIcon(aicon);
-
-
-	}//catch************* 
+		}//catch************* 
 
 	}//runx***************************************************************************************************
     }//remindtask

@@ -153,7 +153,6 @@ krypton_api(){//****************************************************************
 					String send_to = new String("");
 					String tor_status = new String("");
 					String connection_active = new String("");
-					String network_up_to_date = new String("");
 					String blocks_uptodate = new String("");
 					try{item_id = (String) jsonObject.get("item_id").toString(); System.out.println("extra info item_id...");} catch(Exception e){}
 					try{item_array = (String) jsonObject.get("item_array").toString(); System.out.println("extra info item_array...");} catch(Exception e){}
@@ -162,9 +161,16 @@ krypton_api(){//****************************************************************
 					try{send_to = (String) jsonObject.get("send_to").toString(); System.out.println("extra info send to address...");} catch(Exception e){}
 					try{tor_status = (String) jsonObject.get("tor_status").toString(); network.tor_active = Integer.parseInt(tor_status); System.out.println("extra info tor_status " + tor_status);} catch(Exception e){}
 					try{connection_active = (String) jsonObject.get("connection_active").toString(); network.connection_active = Integer.parseInt(connection_active); System.out.println("extra info connection_active " + connection_active);} catch(Exception e){}
-					try{network_up_to_date = (String) jsonObject.get("network_up_to_date").toString(); network.network_up_to_date = Integer.parseInt(network_up_to_date); System.out.println("extra info network_up_to_date " + network_up_to_date);} catch(Exception e){}
 					try{blocks_uptodate = (String) jsonObject.get("blocks_uptodate").toString(); if(blocks_uptodate.equals("true")){network.blocks_uptodate = true;} else{network.blocks_uptodate = false;}; System.out.println("extra info blocks_uptodate " + blocks_uptodate);} catch(Exception e){}
 
+
+						//this is for the peer if there is a fork.
+						if(network.blocks_uptodate){
+
+							network.last_remote_mining_idx = "";//this is a copy of the remote peer's mining ID
+                        	network.last_remote_mining_prev_idx = "";//^^ PREV
+
+						}//**************************
 
 
 	    				while(network.database_in_use == 1 && !request.equals("status")){
@@ -177,6 +183,8 @@ krypton_api(){//****************************************************************
 
 
 						if(request.equals("status")){statex = "1"; responsex = get_status();}//***************************
+
+						else if(request.equals("help")){statex = "1"; responsex = get_help();}//
 
 						else if(request.equals("get_version")){statex = "1"; responsex = network.versionx;}//
 
@@ -212,6 +220,8 @@ krypton_api(){//****************************************************************
 
 						else if(request.equals("get_buffered_block")){statex = "1"; responsex = build_buffered_block();}//get the waiting new block
 
+						else if(request.equals("get_buffered_package")){statex = "1"; responsex = network.buffered_package_block;}//get the waiting new block
+
 						else if(request.equals("delete_node")){statex = "1"; responsex = delete_node(node);}//
 
 						else if(request.equals("delete_all_nodes")){statex = "1"; responsex = delete_all_nodes();}//
@@ -224,6 +234,12 @@ krypton_api(){//****************************************************************
 
 						else if(request.equals("set_new_block")){statex = "1"; responsex = set_new_block(item_array);}//
 
+						else if(request.equals("set_new_test_block")){statex = "1"; responsex = set_new_test_block(item_array);}//
+
+						else if(request.equals("set_new_unconfirmed_block")){statex = "1"; responsex = set_new_unconfirmed_block(item_array);}//
+
+						else if(request.equals("set_stale_block")){statex = "1"; responsex = set_stale_block();}//
+
 						else if(request.equals("set_edit_block")){statex = "1"; update_state = "set_edit_block"; responsex = update_token(item_array);}//
 
 						else if(request.equals("set_transfer_block")){statex = "1"; update_state = "set_transfer_block"; responsex = transfer_token(item_id,send_to); }//
@@ -233,6 +249,10 @@ krypton_api(){//****************************************************************
 						else if(request.equals("system_exit")){statex = "1"; System.exit(0);}//
 
 						else{statex = "0"; responsex = "e01 UnknownRequestException";}
+
+
+						//connection is probably the peer, reset the counter.
+						network.no_peers_time = 0;
 
 
 				}//try
@@ -355,6 +375,39 @@ krypton_api(){//****************************************************************
 
 	}//******************************
 
+
+
+
+
+
+
+
+
+
+	public String get_help(){
+
+		System.out.println("Get help list.");
+
+		String jsontext = new String("");
+
+    	try{
+
+			JSONObject obj = new JSONObject();
+			obj.put("status", "Get the program status.");
+			obj.put("help", "Get the list of help options.");
+			obj.put("get_version", "Get the program version.");
+
+			StringWriter out = new StringWriter();
+			obj.writeJSONString(out);
+			jsontext = out.toString();
+			System.out.println(jsonText);
+
+		}catch(Exception e){e.printStackTrace(); statex = "0"; jsontext = "error";}
+
+
+		return jsontext;
+
+	}//********************
 
 
 
@@ -727,7 +780,7 @@ krypton_api(){//****************************************************************
 			obj.put("listing_size", network.listing_size);
 			obj.put("buffer_size", network.send_buffer_size);
 			obj.put("mining_status", network.mining_status);
-			obj.put("key", network.base58_id);
+			obj.put("pub_key", network.base58_id);
 			obj.put("tor_active", Integer.toString(network.tor_active));
 			obj.put("last_block", network.last_block_id);
 			obj.put("last_block_timestamp", network.last_block_timestamp);
@@ -735,6 +788,7 @@ krypton_api(){//****************************************************************
 			obj.put("difficulty", Long.toString(network.difficultyx));
 			obj.put("last_mining_id", network.last_block_mining_idx);
 			obj.put("prev_mining_id", network.prev_block_mining_idx);
+			obj.put("last_remote_mining_idx", network.last_remote_mining_idx);
 			obj.put("blocktimesx", network.blocktimesx);
 			obj.put("my_token_total", Integer.toString(network.database_listings_owner));
 			obj.put("last_block_time", network.last_block_time);
@@ -746,6 +800,7 @@ krypton_api(){//****************************************************************
 			obj.put("peer_number1", network.settingsx[10]);
 			obj.put("peer_list", jsonpeer);
 			obj.put("mining_block_ready", network.mining_block_ready);
+			obj.put("mining_package_ready", network.mining_package_ready);
 
 
 			StringWriter out = new StringWriter();
@@ -773,7 +828,88 @@ krypton_api(){//****************************************************************
 
 		String jsontext = new String("");
 
-		String update_token[] = new String[network.listing_size];
+		try{
+
+			JSONParser parserx = new JSONParser();
+			Object objx = parserx.parse(array);
+			JSONObject jsonObjectx = (JSONObject) objx;
+  
+  			//JOptionPane.showMessageDialog(null, "array " + array.length());
+
+  			System.out.println(array);
+
+			String update_token[] = new String[network.listing_size];
+			String mining_token[] = new String[network.miningx_size];
+
+    		for (int loop = 0; loop < network.listing_size; loop++){//************
+
+				update_token[loop] = (String) jsonObjectx.get("l" + Integer.toString(loop));
+				System.out.println("convert " + update_token[loop]);
+
+			}//*******************************************************************
+
+    		for (int loop = 0; loop < network.miningx_size; loop++){//************
+
+				mining_token[loop] = (String) jsonObjectx.get("m" + Integer.toString(loop));
+				System.out.println("convert " + mining_token[loop]);
+
+			}//******************************************************************
+
+
+			int test_db = 0;
+			while(network.database_in_use == 1){
+
+    			System.out.println("Database in use...04");
+				try{Thread.sleep(1000);} catch (InterruptedException e){}
+				test_db++;
+				if(test_db > 20){break;}
+
+    		}//*********************************
+
+        	//get the last token
+        	krypton_database_get_token getxt = new krypton_database_get_token();
+        	String req_id = update_token[0];
+        	String old_token[] = new String[network.listing_size];
+        	old_token = getxt.get_token(req_id);
+
+        	boolean gott = false;
+        	try{System.out.println("GOT TOKENX: " + Integer.parseInt(old_token[0])); gott = true;}
+        	catch(Exception e){gott = false;}
+
+        	System.out.println("gott " + gott);
+
+        	//try to add the new token
+        	krypton_update_new_block_remote remotex = new krypton_update_new_block_remote();
+			boolean test = remotex.update(update_token, mining_token, old_token);
+
+			//delete from buffer
+			krypton_database_delete_buffer bufferd = new krypton_database_delete_buffer();
+			bufferd.delete(update_token[0]);
+
+			krypton_database_load loadx = new krypton_database_load();
+
+			if(test){jsontext = "1";}
+			else{jsontext = "0";}
+
+		}catch(Exception e){e.printStackTrace(); statex = "0"; jsontext = "error";}
+
+
+		return jsontext;
+
+    }//***************************************
+
+
+
+
+
+
+
+
+
+
+    public String set_new_test_block(String array){
+
+		String jsontext = new String("");
 
 		try{
 
@@ -781,47 +917,182 @@ krypton_api(){//****************************************************************
 			Object objx = parserx.parse(array);
 			JSONObject jsonObjectx = (JSONObject) objx;
   
+  			//JOptionPane.showMessageDialog(null, "array " + array.length());
+
+  			System.out.println(array);
+
+			String update_token[] = new String[network.listing_size];
+			String mining_token[] = new String[network.miningx_size];
 
     		for (int loop = 0; loop < network.listing_size; loop++){//************
 
-				update_token[loop] = (String) jsonObjectx.get(Integer.toString(loop));
-				System.out.println("import " + update_token[loop]);
+				update_token[loop] = (String) jsonObjectx.get("l" + Integer.toString(loop));
+				System.out.println("convert " + update_token[loop]);
 
 			}//*******************************************************************
 
-		}catch(Exception e){e.printStackTrace();}
+    		for (int loop = 0; loop < network.miningx_size; loop++){//************
+
+				mining_token[loop] = (String) jsonObjectx.get("m" + Integer.toString(loop));
+				System.out.println("convert " + mining_token[loop]);
+
+			}//******************************************************************
 
 
+			int test_db = 0;
+			while(network.database_in_use == 1){
 
-				String testerx = new String("error");
+    			System.out.println("Database in use...04");
+				try{Thread.sleep(1000);} catch (InterruptedException e){}
+				test_db++;
+				if(test_db > 20){break;}
 
-				for (int loop = 0; loop < network.listing_size; loop++){//************
+    		}//*********************************
 
-					try{ if(update_token[loop].equals("0")){} }
-					catch(Exception e){statex = "0"; testerx = "1"; jsontext = "e09 NullException";}
-					
-				}//*******************************************************************
+        	//get the last token
+        	krypton_database_get_token getxt = new krypton_database_get_token();
+        	String req_id = update_token[0];
+        	String old_token[] = new String[network.listing_size];
+        	old_token = getxt.get_token(req_id);
+
+        	boolean gott = false;
+        	try{System.out.println("GOT TOKENX: " + Integer.parseInt(old_token[0])); gott = true;}
+        	catch(Exception e){gott = false;}
+
+        	System.out.println("gott " + gott);
+
+        	//try to add the new token
+        	krypton_update_test_block_remote remotex = new krypton_update_test_block_remote();
+			boolean test = remotex.update(update_token, mining_token);
+
+			krypton_database_load loadx = new krypton_database_load();
+
+			if(test){jsontext = "1";}
+			else{jsontext = "0";}
+
+		}catch(Exception e){e.printStackTrace(); statex = "0"; jsontext = "error";}
 
 
-				while(!testerx.equals("1")){
-
-					System.out.println("Mining send new block update >>>>");
-
-					//String testg = krypton_net_client.send_new_block_update(update_token);
-					//System.out.println("testg " + testg);
-
-					//if(testg.equals("1") || testg.equals("0")){System.out.println("BREAK"); break;}
-
-					try{Thread.sleep(10000);} catch (InterruptedException e){}
-
-				}//while
-
-
-
-
-	return jsontext;
+		return jsontext;
 
     }//***************************************
+
+
+
+
+
+
+
+
+    public String set_new_unconfirmed_block(String array){
+
+		String jsontext = new String("");
+
+		try{
+
+			JSONParser parserx = new JSONParser();
+			Object objx = parserx.parse(array);
+			JSONObject jsonObjectx = (JSONObject) objx;
+  
+  			//JOptionPane.showMessageDialog(null, "array " + array.length());
+
+  			System.out.println(array);
+
+			String update_token[] = new String[network.listing_size];
+
+    		for (int loop = 0; loop < peer_net_api.listing_size; loop++){//************
+
+				update_token[loop] = (String) jsonObjectx.get(Integer.toString(loop));
+				System.out.println("convert " + update_token[loop]);
+
+			}//*******************************************************************
+
+
+			int test_db = 0;
+			while(network.database_in_use == 1){
+
+    			System.out.println("Database in use...04");
+				try{Thread.sleep(1000);} catch (InterruptedException e){}
+				test_db++;
+				if(test_db > 20){break;}
+
+    		}//*********************************
+
+        	//get the last token
+        	krypton_database_get_token getxt = new krypton_database_get_token();
+        	String req_id = update_token[0];
+        	String old_token[] = new String[network.listing_size];
+        	old_token = getxt.get_token(req_id);
+
+        	boolean gott = false;
+        	try{System.out.println("GOT TOKENX: " + Integer.parseInt(old_token[0])); gott = true;}
+        	catch(Exception e){gott = false;}
+
+        	System.out.println("gott " + gott);
+
+        	//try to add the new token
+        	krypton_update_token_remote remotexu2 = new krypton_update_token_remote();
+			boolean test = remotexu2.update(update_token, old_token);
+
+			krypton_database_delete_buffer bufferd = new krypton_database_delete_buffer();
+			bufferd.delete(update_token[0]);
+
+			krypton_database_load loadx = new krypton_database_load();
+
+			if(test){jsontext = "1";}
+			else{jsontext = "0";}
+
+		}catch(Exception e){e.printStackTrace(); statex = "0"; jsontext = "error";}
+
+
+		return jsontext;
+
+    }//***************************************
+
+
+
+
+
+
+
+
+
+
+
+    public String set_stale_block(){
+
+		String jsontext = new String("");
+
+		try{
+
+			int test_db = 0;
+			while(network.database_in_use == 1){
+
+    			System.out.println("Database in use...04");
+				try{Thread.sleep(1000);} catch (InterruptedException e){}
+				test_db++;
+				if(test_db > 20){break;}
+
+    		}//*********************************
+
+        	//try to add the new token
+        	krypton_update_block_stale remotex3 = new krypton_update_block_stale();
+			boolean test = remotex3.update(network.last_block_id);
+
+			krypton_database_load loadx = new krypton_database_load();
+
+			if(test){jsontext = "1";}
+			else{jsontext = "0";}
+
+		}catch(Exception e){e.printStackTrace(); statex = "0"; jsontext = "error";}
+
+
+		return jsontext;
+
+    }//***************************************
+
+
+
 
 
 

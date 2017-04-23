@@ -43,7 +43,7 @@ public class peer_net_api{
 
 static String client_address_connect = new String("foomfoumyoi37qly.onion");
 static int client_port_connect = 55555;
-static int api_port = 55544;
+static int api_port = 55556;
 static int peer_port = 55544;
 
 long threadId;
@@ -64,20 +64,22 @@ static int peer_idx = 0;
 static int stop_mining = 0;
 static int mining_status = 0;
 static int mining_block_ready = 0;
+static int mining_package_ready = 0;
 static int tor_in_use = 0;
+static int api_in_use = 0;
 static int tor_active = 0;
 static int connection_active = 0;
 static int tor_starting = 0;
 static int listing_size = 69;//listing token sections
-static int miningx_size = 9;//listing token sections
+static int miningx_size = 10;//mining token sections
 static int database_in_use = 0;
 static int internet_access = 0;
-static int network_up_to_date = 0;
 static int network_size = 0;
 static int open_network = 0;
 static int send_buffer_size = 0;
 static int package_block_size = 0;
 static int database_unconfirmed_total = 0;
+static int restart_attempts = 0;
 
 static boolean updating = false;
 static boolean blocks_uptodate = false;
@@ -92,6 +94,8 @@ static String[] peer1sendBufferB2 = null;
 
 static String[] peer1sendUnconfiremdB1 = null;
 
+static String peer1sendPackageB1 = null;
+
 static String new_hash1 = new String("");
 static String new_hash2 = new String("");
 static String new_hash3 = new String("");
@@ -99,6 +103,7 @@ static String new_hash4 = new String("");
 
 static String versionx = new String("1");
 static String last_block_mining_idx = new String("");
+static String last_remote_mining_idx = new String("");
 static String last_block_timestamp = new String("");
 static String last_unconfirmed_idx = new String("");
 static String programss = new String("");
@@ -150,15 +155,19 @@ peer_net_api(){//***************************************************************
 
 			thisTick = System.currentTimeMillis();
 
-			no_peers_time++; 
+			if(api_in_use == 0){no_peers_time++;}
 			System.out.println("no_peers_time ID " + peer_idx + " " + no_peers_time + " active(" + peer_active_number + ")");
 
 
-			try{request_status();}
-			catch(Exception e){e.printStackTrace();}
+			try{
+
+				if(api_in_use == 0){request_status();}
+
+			}catch(Exception e){e.printStackTrace();}
 
 			if(no_peers_time > 25){break;}
 			if(peerRestart1){break;}
+			if(restart_attempts > 3){System.exit(0);}
 
 			try{Thread.sleep(10000);} catch(InterruptedException e){e.printStackTrace();}
 		
@@ -207,6 +216,7 @@ peer_net_api(){//***************************************************************
   			command.add("-Xms256m");
   			command.add("-Xmx512m");
   			command.add(currentJar.getPath());
+  			command.add("apiPort:" + api_port);
 
   			final ProcessBuilder builder = new ProcessBuilder(command);
   			builder.start();
@@ -272,7 +282,6 @@ peer_net_api(){//***************************************************************
 			obj.put("password", "1234");
 			obj.put("tor_status", tor_active);
 			obj.put("connection_active", connection_active);
-			obj.put("network_up_to_date", network_up_to_date);
 			obj.put("blocks_uptodate", String.valueOf(blocks_uptodate));
 
 			StringWriter out = new StringWriter();
@@ -291,7 +300,7 @@ peer_net_api(){//***************************************************************
 
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
 			//System.out.println(">>> " + "localhost" + " " + "55556");
-			Socket clientSocket = new Socket("localhost", 55556);   
+			Socket clientSocket = new Socket("localhost", api_port);   
 			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
 			sentence = jsonText;  
@@ -325,29 +334,40 @@ peer_net_api(){//***************************************************************
 					programss = jsonObject2.get("program_status").toString();
 					last_block_timestamp = jsonObject2.get("last_block_timestamp").toString();
 					last_block_mining_idx = jsonObject2.get("last_mining_id").toString();
+					last_remote_mining_idx = jsonObject2.get("last_remote_mining_idx").toString();
 					last_unconfirmed_idx = jsonObject2.get("last_unconfirmed_idx").toString();
 					client_address_connect = jsonObject2.get("peer_number1").toString();
 					mining_block_ready = (Integer) Integer.parseInt(jsonObject2.get("mining_block_ready").toString());
+					mining_package_ready = (Integer) Integer.parseInt(jsonObject2.get("mining_package_ready").toString());
 
 					if(send_buffer_size > 0 && peer1sendUnconfiremdB1 == null){
 
 						get_buffer_unconfirmed();
 
-					}
+					}//********************************************************
 
 					if(mining_block_ready == 1 && peer_net_api.peer1sendBufferB1 == null){
 
 						//JOptionPane.showMessageDialog(null, "mining_block_ready " + mining_block_ready + "\n" + "peer_net_api.peer1sendBufferB1 " + peer_net_api.peer1sendBufferB1);
 						get_new_block();
 
-					}
+					}//*******************************************************************
 
+					if(mining_package_ready == 1 && peer1sendPackageB1 == null){
+
+						get_new_package();
+
+					}//********************************************************
+
+					restart_attempts = 0;
 
 		}catch(Exception e){
 
 			e.printStackTrace(); 
 			System.out.println("API SERVER OFFLINE!"); 
-			modifiedSentence = "API SERVER OFFLINE!"; 
+			modifiedSentence = "API SERVER OFFLINE!";
+			//JOptionPane.showMessageDialog(null, "Nothing to connect to: (" + api_port + ")");
+			restart_attempts++;
 			System.exit(0);
 
 		}//*****************
@@ -391,7 +411,7 @@ peer_net_api(){//***************************************************************
 
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
 			//System.out.println(">>> " + "localhost" + " " + "55556");
-			Socket clientSocket = new Socket("localhost", 55556);   
+			Socket clientSocket = new Socket("localhost", api_port);   
 			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
 			sentence = jsonText;  
@@ -460,7 +480,7 @@ peer_net_api(){//***************************************************************
 
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
 			//System.out.println(">>> " + "localhost" + " " + "55556");
-			Socket clientSocket = new Socket("localhost", 55556);   
+			Socket clientSocket = new Socket("localhost", api_port);   
 			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
 			sentence = jsonText;  
@@ -487,6 +507,77 @@ peer_net_api(){//***************************************************************
     				String listing = jsonObject2.get("new_listing_id").toString();
 
     				send_new_block(miningx,listing);
+
+
+		}catch(Exception e){
+
+			e.printStackTrace(); 
+			System.out.println("API SERVER OFFLINE!"); 
+			modifiedSentence = "API SERVER OFFLINE!"; 
+
+		}//*****************
+
+
+
+
+	}//get block
+
+
+
+
+
+
+
+
+
+	public void get_new_package(){
+
+		String jsonText = new String("");
+
+
+		try{
+
+			JSONObject obj = new JSONObject();
+			obj.put("request", "get_buffered_package");
+			obj.put("password", "1234");
+
+			StringWriter out = new StringWriter();
+			obj.writeJSONString(out);
+			jsonText = out.toString();
+			//System.out.println(jsonText);
+
+		}catch(Exception e){System.out.println("JSON ERROR");}
+
+
+
+		String sentence;   
+		String modifiedSentence = new String();   
+
+		try{
+
+			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in) );
+			//System.out.println(">>> " + "localhost" + " " + "55556");
+			Socket clientSocket = new Socket("localhost", api_port);   
+			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));    
+			sentence = jsonText;  
+			outToServer.writeBytes(sentence + '\n');   
+			modifiedSentence = inFromServer.readLine();   
+			//System.out.println("FROM SERVER: " + modifiedSentence);
+			clientSocket.close();
+
+
+				JSONParser parser = new JSONParser();
+
+				Object obj = parser.parse(modifiedSentence);
+				JSONObject jsonObject = (JSONObject) obj;
+  
+				String message = (String) jsonObject.get("message");
+
+				peer1sendPackageB1 = message;
+				//System.out.println(message);
+
+				//JOptionPane.showMessageDialog(null, peer1sendPackageB1.length());
 
 
 		}catch(Exception e){
@@ -784,6 +875,18 @@ peer_net_api(){//***************************************************************
 
 //start the program.
     public static void main(String[] args) {
+
+    	//get server port
+		for (int loop = 0; loop < args.length; loop++){//************
+
+			try{
+
+				if(args[loop].contains("apiPort:")){api_port = Integer.parseInt(args[loop].substring(8,args[loop].length()));}
+
+			}catch(Exception e){e.printStackTrace();}
+
+		}//**********************************************************
+		System.out.println("api_port: " + api_port);
 
 		peer_net_api apix = new peer_net_api();
 

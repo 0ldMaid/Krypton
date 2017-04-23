@@ -77,171 +77,64 @@ public class krypton_update_block_stale{
     boolean token_updated = false;
 
 
-    boolean update(String[] transfer_id, String[] mining_id, String[] old_token){//**************************************************************************
-    network.database_in_use = 1;
+    boolean update(String id){//**************************************************************************
+    //network.database_in_use = 1;
 
 
-
+        String[] token_ssp0 = new String[network.listing_size];
 
         try{
 
 
-                token_updated = false;
-	
+            int idx = 0;
 
 
-                System.out.println("UPDATE TOKEN TEST FOR STALE BLOCKCHAIN....");
 
-                        String block_idx = new String("");
-                        String build_hash = new String("");
-                        String[] move_item = transfer_id;//make the new item
-                        String[] tokenx = old_token;//get the old token
+            try{
 
+                idx = Integer.parseInt(id);
 
+            }catch(Exception e){}
 
-                        //the new block
-                        String ID = mining_id[0];
-                        String mining_date = mining_id[1];
-                        String mining_difficulty = mining_id[2];
-                        String mining_noose = mining_id[3];
-                        String mining_old_block = mining_id[4];
-                        String mining_new_block = mining_id[5];
-                        String old_hash_id = mining_id[6];
-                        String hash_id = mining_id[7];
-                        String sig_id = mining_id[8];
 
 
 
 
-                        System.out.println("Test Mining... " + move_item[0]);
+            for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
 
-                        boolean testm0 = false;
-                        boolean testm1 = false;
-                        boolean testm2 = false;
-                        boolean testm3 = false;
-                        boolean testm4 = false;
+                token_ssp0[loop1] = new String("error");
 
-                        String[] token_ssp1 = new String[network.miningx_size];
-                        String[] token_ssp2 = new String[network.listing_size];
+            }//********************************************************************
 
 
 
-                        System.out.println("Load server's mining token..." );
 
-                        //Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
-                        krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM mining_db WHERE mining_old_block='" + mining_old_block + "'");
+            System.out.println("Load Token..." );
 
-                        ix0 = 0;
-                        while(krypton_database_driver.rs.next()){
+            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM listings_db WHERE id=" + idx + " ORDER BY id ASC");
 
-                            for(int loop1 = 0; loop1 < network.miningx_size; loop1++){//***********
+            ix0 = 0;
+            while(krypton_database_driver.rs.next()){
 
-                                token_ssp1[loop1] = new String(krypton_database_driver.rs.getString(loop1 + 1));
 
-                            }//********************************************************************
+                for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
 
-                        testm1 = true;
+                    token_ssp0[loop1] = new String(krypton_database_driver.rs.getString((loop1 + 2)));
 
-                        }//while
+                }//********************************************************************
 
 
-                        System.out.println("testm1 " + testm1);
+            }//while
 
+        
+            System.out.println("network size " + network.network_list.size());
 
-                        System.out.println("token_ssp1[2] " + token_ssp1[2]);
-                        System.out.println("mining_date " + mining_date);
 
-                        //if the server's very firt token is the same as one we have on record then their chain is longer.
-                        if(token_ssp1[2].equals(mining_date)){testm2 = true;}
-                        System.out.println("testm2 " + testm2);
 
+            krypton_database_driver.conn.commit();
+            System.out.println("Committed the transaction");
 
-
-
-
-
-
-                        //if we have a stale block delete it.
-                        if(testm1 && testm2){
-
-                            //move from back up blocks.
-
-                            String hash_delete = new String("");
-
-                            krypton_database_driver.s.setMaxRows(1); 
-                            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT hash_id FROM mining_db ORDER BY xd DESC");
-
-                            while(krypton_database_driver.rs.next()){
-
-                                hash_delete = krypton_database_driver.rs.getString(1);
-                                System.out.println("hash_delete " + hash_delete);
-
-                            }//while
-
-
-                            boolean has_backup = false;
-                            String[] token_ssp3 = new String[network.listing_size];
-
-                            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM backup_db WHERE hash_id='" + hash_delete + "'");
-                            while(krypton_database_driver.rs.next()){
-
-                                for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
-
-                                    token_ssp3[loop1] = new String(krypton_database_driver.rs.getString(loop1 + 2));
-                                    System.out.println("GETB " + krypton_database_driver.rs.getString(loop1 + 2));
-
-                                }//********************************************************************
-
-                            has_backup = true;
-
-                            }//while
-
-
-
-                            System.out.println("has_backup " + has_backup);
-                            System.out.println("token_ssp3[0] " + token_ssp3[0]);
-
-
-                            if(has_backup){
-
-                                    krypton_database_driver.s.execute("DELETE FROM listings_db where id=" + token_ssp3[0]);
-
-
-                                    int numrows = 0;
-                                    PreparedStatement ps = null;
-                                    ps = krypton_database_driver.conn.prepareStatement("INSERT INTO listings_db(id, hash_id, sig_id, date_id, owner_id, owner_rating, currency, custom_template, custom_1, custom_2, custom_3, item_errors, item_date_listed, item_date_listed_day, item_date_listed_int, item_hits, item_confirm_code, item_confirmed, item_cost, item_description, item_id, item_price, item_weight, item_listing_id, item_notes, item_package_d, item_package_l, item_package_w, item_part_number, item_title, item_title_url, item_type, item_search_1, item_search_2, item_search_3, item_site_id, item_site_url, item_picture_1, item_total_on_hand, sale_payment_address, sale_payment_type, sale_fees, sale_id, sale_seller_id, sale_status, sale_tax, sale_shipping_company, sale_shipping_in, sale_shipping_out, sale_source_of_sale, sale_total_sale_amount, sale_tracking_number, sale_transaction_id, sale_transaction_info, seller_address_1, seller_address_2, seller_address_city, seller_address_state, seller_address_zip, seller_address_country, seller_id, seller_ip, seller_email, seller_first_name, seller_last_name, seller_notes, seller_phone, seller_logo, seller_url) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-
-                                        ps.setInt(1, Integer.parseInt(token_ssp3[0]));
-                                        for(int loop1 = 1; loop1 < network.listing_size; loop1++){//**********************************
-
-                                            ps.setString((loop1 + 1), token_ssp3[loop1]);
-                                            System.out.println("PSV UPDATE " + token_ssp3[loop1]);
-
-                                        }//*******************************************************************************************
-
-                                    numrows = numrows + ps.executeUpdate();
-                                    ps.close();
-
-                                    System.out.println("DELETE LAST MINING BLOCK");
-                                    krypton_database_driver.s.execute("DELETE FROM mining_db where mining_new_block='" + network.last_block_mining_idx + "'");//delete the last block and try to sync again
-
-
-                                    System.out.println("UPDATE DONE>");
-
-                            }//************
-                            else{System.out.println("Cannot update database server's info is wrong.");}
-
-                        }//******************
-                        else{System.out.println("DELETE LAST BLOCK FAILED!");}
-
-
-
-
-
-
-                krypton_database_driver.conn.commit();
-                System.out.println("Committed the transaction");
 
 
         }catch(Exception e){e.printStackTrace();}
@@ -249,24 +142,169 @@ public class krypton_update_block_stale{
 
 
 
-    network.database_in_use = 0;
-    return token_updated;
+
+
+        try{
+
+
+            token_updated = false;
+	
+
+
+            System.out.println("UPDATE TOKEN TEST FOR STALE BLOCKCHAIN....");
+
+            String block_idx = new String("");
+            String build_hash = new String("");
+            //String[] move_item = transfer_id;//make the new item
+            String[] tokenx = token_ssp0;//get the old token
+
+
+
+            boolean testm0 = false;
+            boolean testm1 = false;
+            boolean testm2 = false;
+            boolean testm3 = false;
+            boolean testm4 = false;
+
+            String[] token_ssp1 = new String[network.miningx_size];
+            String[] token_ssp2 = new String[network.listing_size];
+
+
+
+            System.out.println("Load server's mining token..." );
+
+
+
+            testm1 = true;
+
+            System.out.println("testm1 " + testm1);
+
+
+
+
+            //if the server's very first token is the same as one we have on record then their chain is longer.
+            long time_since_last_block = System.currentTimeMillis() - network.last_block_time;
+
+            System.out.println("time_since_last_block " + time_since_last_block);
+
+            if(network.last_block_time > 10800000){testm2 = true;}
+            System.out.println("testm2 " + testm2);
+
+
+
+
+
+
+
+            //if we have a stale block delete it.
+            if(testm1 && testm2){
+
+                //move from back up blocks.
+
+                String hash_delete = new String("");
+
+                krypton_database_driver.s.setMaxRows(1); 
+                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT hash_id FROM mining_db ORDER BY xd DESC");
+
+                while(krypton_database_driver.rs.next()){
+
+                    hash_delete = krypton_database_driver.rs.getString(1);
+                    System.out.println("hash_delete " + hash_delete);
+
+                }//while
+
+
+                boolean has_backup = false;
+                String[] token_ssp3 = new String[network.listing_size];
+
+                krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM backup_db WHERE hash_id='" + hash_delete + "'");
+                while(krypton_database_driver.rs.next()){
+
+                    for(int loop1 = 0; loop1 < network.listing_size; loop1++){//***********
+
+                            token_ssp3[loop1] = new String(krypton_database_driver.rs.getString(loop1 + 2));
+                            System.out.println("GETB " + krypton_database_driver.rs.getString(loop1 + 2));
+
+                        }//********************************************************************
+
+                    has_backup = true;
+
+                }//while
+
+
+
+                System.out.println("has_backup " + has_backup);
+                System.out.println("token_ssp3[0] " + token_ssp3[0]);
+
+
+                if(has_backup){
+
+                    krypton_database_driver.s.execute("DELETE FROM listings_db where id=" + token_ssp3[0]);
+
+
+                    int numrows = 0;
+                    PreparedStatement ps = null;
+                    ps = krypton_database_driver.conn.prepareStatement("INSERT INTO listings_db(id, hash_id, sig_id, date_id, owner_id, owner_rating, currency, custom_template, custom_1, custom_2, custom_3, item_errors, item_date_listed, item_date_listed_day, item_date_listed_int, item_hits, item_confirm_code, item_confirmed, item_cost, item_description, item_id, item_price, item_weight, item_listing_id, item_notes, item_package_d, item_package_l, item_package_w, item_part_number, item_title, item_title_url, item_type, item_search_1, item_search_2, item_search_3, item_site_id, item_site_url, item_picture_1, item_total_on_hand, sale_payment_address, sale_payment_type, sale_fees, sale_id, sale_seller_id, sale_status, sale_tax, sale_shipping_company, sale_shipping_in, sale_shipping_out, sale_source_of_sale, sale_total_sale_amount, sale_tracking_number, sale_transaction_id, sale_transaction_info, seller_address_1, seller_address_2, seller_address_city, seller_address_state, seller_address_zip, seller_address_country, seller_id, seller_ip, seller_email, seller_first_name, seller_last_name, seller_notes, seller_phone, seller_logo, seller_url) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+
+                    ps.setInt(1, Integer.parseInt(token_ssp3[0]));
+                    for(int loop1 = 1; loop1 < network.listing_size; loop1++){//**********************************
+
+                        ps.setString((loop1 + 1), token_ssp3[loop1]);
+                        System.out.println("PSV UPDATE " + token_ssp3[loop1]);
+
+                    }//*******************************************************************************************
+
+                    numrows = numrows + ps.executeUpdate();
+                    ps.close();
+
+                    System.out.println("DELETE LAST MINING BLOCK");
+                    krypton_database_driver.s.execute("DELETE FROM mining_db where mining_new_block='" + network.last_block_mining_idx + "'");//delete the last block and try to sync again
+
+
+                    System.out.println("UPDATE DONE>");
+
+                    token_updated = true;
+
+                }//************
+                else{
+
+                    System.out.println("Cannot update database server's info is wrong.");
+                    JOptionPane.showMessageDialog(null, "Blockchaing has forcked! Find the blockchain with the most work done\nand update your node list accordingly.");
+
+                }
+
+            }//******************
+            else{System.out.println("DELETE LAST BLOCK FAILED!");}
+
+
+
+            krypton_database_driver.conn.commit();
+            System.out.println("Committed the transaction");
+
+
+        }catch(Exception e){e.printStackTrace();}
+
+
+
+
+        //network.database_in_use = 0;
+        return token_updated;
 
     }//load
 
 
 
-public String bytesToHex(byte[] bytes) {
-    char[] hexChars = new char[bytes.length * 2];
+    public String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
 
-    for ( int j = 0; j < bytes.length; j++ ) {
-        int v = bytes[j] & 0xFF;
-        hexChars[j * 2] = hexArray[v >>> 4];
-        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-    }//***************************************
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }//***************************************
 
-    return new String(hexChars);
-}//********************************************
+        return new String(hexChars);
+    }//********************************************
 
 
  

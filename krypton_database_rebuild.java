@@ -170,11 +170,30 @@ public class krypton_database_rebuild{
 
 
 
+                //s.execute("ALTER TABLE mining_db DROP COLUMN package");
 
-                s.execute("ALTER TABLE listings_db ALTER item_description SET DATA TYPE VARCHAR(20000)");
-                s.execute("ALTER TABLE unconfirmed_db ALTER item_description SET DATA TYPE VARCHAR(20000)");
-                s.execute("ALTER TABLE send_buffer ALTER item_description SET DATA TYPE VARCHAR(20000)");
-                s.execute("ALTER TABLE backup_db ALTER item_description SET DATA TYPE VARCHAR(20000)");
+                //s.execute("ALTER TABLE mining_db ADD package varchar(200) DEFAULT ''");
+                //s.execute("ALTER TABLE mining_db ADD package_end varchar(20) DEFAULT ''");
+
+
+
+                s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                s.setMaxRows(1); 
+                rs = s.executeQuery("SELECT * FROM mining_db ORDER BY mining_date DESC");
+                while(rs.next()){
+
+                    System.out.println(">> " + rs.getString("package"));
+
+                }
+
+                //s.execute("ALTER TABLE mining_db ADD package_start integer");
+                //s.execute("ALTER TABLE mining_db ADD package_end integer");
+
+
+                //s.execute("ALTER TABLE listings_db ALTER item_description SET DATA TYPE VARCHAR(20000)");
+                //s.execute("ALTER TABLE unconfirmed_db ALTER item_description SET DATA TYPE VARCHAR(20000)");
+                //s.execute("ALTER TABLE send_buffer ALTER item_description SET DATA TYPE VARCHAR(20000)");
+                //s.execute("ALTER TABLE backup_db ALTER item_description SET DATA TYPE VARCHAR(20000)");
 
 
 

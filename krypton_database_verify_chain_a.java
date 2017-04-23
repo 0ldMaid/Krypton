@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.text.*;  
 import java.lang.Object.*;  
 import java.net.*;
+import java.math.*;
 
 import java.awt.Toolkit;
 
@@ -44,7 +45,6 @@ import org.spongycastle.util.encoders.Base64;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.math.BigInteger;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -56,7 +56,7 @@ import org.json.simple.JSONValue;
 
 
 
-public class krypton_database_verify_blocks{
+public class krypton_database_verify_chain_a{
 
 
     final protected static char[] hexArray = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
@@ -65,35 +65,15 @@ public class krypton_database_verify_blocks{
     int ix1 = 0;
     int ix2 = 0;
 
+    String test_results = new String("");
     boolean blocks_verified = false;
     String last_package = new String();
 
 
-    boolean verify_blocks(){//**************************************************************************
-    network.database_in_use = 1;
+    String test_blocks(int start_block){//**************************************************************************
 
 
         try{
-
-
-
-            System.out.println("SAVE BLOCKCHAIN...");
-
-
-
-            krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM backup_db ORDER BY xd ASC");
-            krypton_database_driver.rs.last();
-            int rowCount4u = krypton_database_driver.rs.getRow();
-            int rowCount5u = krypton_database_driver.rs.getInt(1);
-
-            System.out.println("rowCount4u " + rowCount4u);
-
-            rowCount5u = rowCount5u - network.confirm_before_delete;
-
-            System.out.println("rowCount5u " + rowCount5u);
-
-            krypton_database_driver.s.execute("DELETE FROM backup_db WHERE xd < " + rowCount5u );
 
 
 
@@ -103,29 +83,28 @@ public class krypton_database_verify_blocks{
 
             System.out.println("TESTING BLOCKCHAIN...");
 
+            BigDecimal work_done = new BigDecimal(0);
 
 
             //test
             System.out.println("START TEST");
             int test_run = 0;
+            int testx = 1;
 
-            int displaypx = network.block_difficulty_reset;
+            int displaypx = 100;
+
+            long workx = (long) 0;
+            Long start_time = (long) 0;
             //if(network.settingsx[7].equals("1")){displaypx = network.hard_token_limit;}
 
 
 
             krypton_database_driver.s = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
-            if(!network.settingsx[7].equals("1")){krypton_database_driver.s.setMaxRows(network.block_difficulty_reset + 1);}
+            //if(!network.settingsx[7].equals("1")){krypton_database_driver.s.setMaxRows(25);}
 
-            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM mining_db ORDER BY mining_date DESC");
-            krypton_database_driver.rs.last();
-
-            last_package = krypton_database_driver.rs.getString(11);
-
-            krypton_database_driver.rs.previous();
-
-            while(krypton_database_driver.rs.previous()){
+            krypton_database_driver.rs = krypton_database_driver.s.executeQuery("SELECT * FROM mining_db WHERE xd > " + start_block + " ORDER BY mining_date ASC");
+            while(krypton_database_driver.rs.next()){
 
 
                 //System.out.println(rs.getString(1));
@@ -142,11 +121,12 @@ public class krypton_database_verify_blocks{
 
 
 
+
+
                 //decode packages
                 String ID = krypton_database_driver.rs.getString(2);
                 String packagex = krypton_database_driver.rs.getString(11);
 
-                testx0 = false;
                 boolean is_in_package = false;
                 boolean last_is_package = false;
                 boolean this_is_package = false;
@@ -247,12 +227,21 @@ public class krypton_database_verify_blocks{
 
 
 
-                network.programst = ("Verify Blockchain (" + Integer.toString((test_run + 1)) + " of " + Integer.toString(displaypx) + ")");
+                if(testx == 1){start_time = Long.parseLong(krypton_database_driver.rs.getString(3));}
+
+                Long work_time = (long) Long.parseLong(krypton_database_driver.rs.getString(3)) - start_time;
+                workx = workx + Long.parseLong(krypton_database_driver.rs.getString(4));
+
+                work_done = work_done.add(new BigDecimal(network.difficultyx_limit - Long.parseLong(krypton_database_driver.rs.getString(4))));
+                test_results = String.valueOf(work_done);
+
+
 
 
                 krypton_database_driver.s2 = krypton_database_driver.conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                 krypton_database_driver.rs2 = krypton_database_driver.s2.executeQuery("SELECT * FROM listings_db WHERE id=" + krypton_database_driver.rs.getString(2));
                 while(krypton_database_driver.rs2.next()){
+
 
                     System.out.println("get ID " + krypton_database_driver.rs2.getString("seller_id"));
 
@@ -281,19 +270,21 @@ public class krypton_database_verify_blocks{
                     System.out.println("ID " + move_item[0]);
                     System.out.println("build_hash " + build_hash);
 
+                    //BigDecimal tmp = new BigDecimal((workx / testx));
+                    //tmp = tmp.multiply(new BigDecimal(work_time));
+                    //test_results = String.valueOf(tmp);
 
+                        //test item
+                        try{
 
-                    //test item
-                    try{
+                            byte[] sha256_1w = MessageDigest.getInstance("SHA-256").digest(build_hash.getBytes());
+                                
+                            System.out.println("TESTX " + Base64.toBase64String(sha256_1w));
+                            System.out.println("GIVEN " + move_item[1]);
+                            System.out.println("MININ " + krypton_database_driver.rs.getString(9));
 
-                        byte[] sha256_1w = MessageDigest.getInstance("SHA-256").digest(build_hash.getBytes());
-
-                        System.out.println("TESTX " + Base64.toBase64String(sha256_1w));
-                        System.out.println("GIVEN " + move_item[1]);
-                        System.out.println("MININ " + krypton_database_driver.rs.getString(9));
-
-                        if(Base64.toBase64String(sha256_1w).equals(move_item[1])){testx1 = true;}
-                        else{System.out.println("Bad HASH");}
+                            if(Base64.toBase64String(sha256_1w).equals(move_item[1])){testx1 = true;}
+                            else{System.out.println("Bad HASH");}
 
 
                             byte[] keyxb3 = Base64.decode(move_item[4]);
@@ -314,11 +305,10 @@ public class krypton_database_verify_blocks{
                             //System.out.println(sigpk3.verify(signatureBytesx3));
 
 
-                        if(sigpk3.verify(signatureBytesx3)){testx2 = true;}
-                        else{System.out.println("Bad SIG");}
+                            if(sigpk3.verify(signatureBytesx3)){testx2 = true;}
+                            else{System.out.println("Bad SIG");}
 
-                    }catch(Exception e){e.printStackTrace();}
-
+                        }catch(Exception e){e.printStackTrace();}
 
 
                     if(testx1 && testx2){blocks_verified = true;}
@@ -335,11 +325,10 @@ public class krypton_database_verify_blocks{
                 String mining_old_block = krypton_database_driver.rs.getString(6);
                 String hash_id = krypton_database_driver.rs.getString(9);
                 String mining_noose = krypton_database_driver.rs.getString(5);
-                        
 
 
                 //String encode = encode_date + old_block_mining_hash + new_block_hash + Integer.toString(noosex);
-                String encode = mining_date + mining_old_block + hash_id + mining_noose + packagex;
+                String encode = mining_date + mining_old_block + hash_id + mining_noose;
 
                 System.out.println("mining_date " + mining_date);
                 System.out.println("mining_old_block " + mining_old_block);
@@ -351,32 +340,34 @@ public class krypton_database_verify_blocks{
                 boolean testm3 = false;
                 Long difficultyx = Long.parseLong(krypton_database_driver.rs.getString(4));
 
-                try{
+                    try{
 
-                    byte[] sha256_1 = MessageDigest.getInstance("SHA-256").digest(encode.getBytes());
-                    //System.out.println("SHA1 " + bytesToHex(sha256_1));
+                        byte[] sha256_1 = MessageDigest.getInstance("SHA-256").digest(encode.getBytes());
+                        //System.out.println("SHA1 " + bytesToHex(sha256_1));
 
-                    ByteBuffer buffer = ByteBuffer.wrap(sha256_1);
-                    buffer.order(ByteOrder.BIG_ENDIAN);  // if you want little-endian
-                    long result = buffer.getLong();
 
-                    //System.out.println("value " + value);
-                    System.out.println("result " + result);
-                    System.out.println("difficultyx " + difficultyx);
-                    System.out.println("SHA1 Mining " + bytesToHex(sha256_1));
+                        ByteBuffer buffer = ByteBuffer.wrap(sha256_1);
+                        buffer.order(ByteOrder.BIG_ENDIAN);  // if you want little-endian
+                        long result = buffer.getLong();
 
-                    encode = bytesToHex(sha256_1);
+                        //System.out.println("value " + value);
+                        System.out.println("result " + result);
+                        System.out.println("difficultyx " + difficultyx);
+                        System.out.println("SHA1 Mining " + bytesToHex(sha256_1));
 
-                    long package_difficultyx = (long) 0;
+                        encode = bytesToHex(sha256_1);
 
-                    //if we are building a package then the other items do not need a hard difficulty. 
-                    if(is_in_package){package_difficultyx = network.difficultyx_limit;}
-                    else{package_difficultyx = difficultyx;}
 
-                    if(result <= package_difficultyx && result > 0){testm3 = true;}
-                    else{blocks_verified = false;}
+                        long package_difficultyx = (long) 0;
 
-                }catch(Exception e){e.printStackTrace();}
+                        //if we are building a package then the other items do not need a hard difficulty. 
+                        if(is_in_package){package_difficultyx = network.difficultyx_limit;}
+                        else{package_difficultyx = difficultyx;}
+
+                        if(result <= package_difficultyx && result > 0){testm3 = true;}
+                        else{blocks_verified = false;}
+
+                    }catch(Exception e){e.printStackTrace();}
 
 
                 System.out.println("testm3 " + testm3);
@@ -386,32 +377,32 @@ public class krypton_database_verify_blocks{
                 System.out.println("");
                 System.out.println("");
 
+                if(!blocks_verified){test_results = "0"; break;}
+
                 last_package = packagex;
 
-                if(!blocks_verified){break;}
-
                 test_run++;
+                testx++;
 
             }//**************
+
+
 
 
             System.out.println("blocks_verified " + blocks_verified);
             System.out.println("");
 
 
+
             krypton_database_driver.conn.commit();
             System.out.println("Committed the transaction");
 
-            if(test_run == network.block_difficulty_reset){blocks_verified = false;}
-
-            if(!blocks_verified){JOptionPane.showMessageDialog(null, "Block verify failed!");}
 
 
-        }catch(Exception e){e.printStackTrace();}
+        }catch(Exception e){test_results = "0"; e.printStackTrace();}
 
 
-        network.database_in_use = 0;
-        return blocks_verified;
+        return test_results;
 
     }//verify
 
